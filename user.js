@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // GANTI KE ALAMAT API PHP ANDA
-const API_BASE_URL = 'http://localhost/api_store/api_storeapi';
+const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
     
     // --- Helper Function: SIMULASI Get User ID ---
     // ID 'USER-TEST-1' dianggap sudah memiliki pembelian di reviews.php!
