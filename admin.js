@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // GANTI KE ALAMAT API PHP ANDA
-  const API_BASE_URL = 'http://localhost/api_store/api_storeapi';
+  const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
     
     // --- Modal Functionality (Sama) ---
     const addProductBtn = document.getElementById('addProductBtn');
