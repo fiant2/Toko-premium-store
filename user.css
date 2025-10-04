@@ -94,7 +94,7 @@
         
         .search-icon:hover, .cart-icon:hover {
             transform: scale(1.1);
-            color: #10b981;
+            color: #FFD5D5;
         }
         
         /* Hero section */
@@ -133,7 +133,7 @@
             display: inline-block;
             padding: 1rem 2.5rem;
             background-color: #ffffff;
-            color: #10b981;
+            color: #FFD5D5;
             border: none;
             border-radius: 50px;
             font-weight: 600;
@@ -171,7 +171,7 @@
             display: block;
             width: 60px;
             height: 3px;
-            background-color: #10b981;
+            background-color: #FFD5D5;
             margin: 1rem auto;
         }
         
@@ -199,7 +199,7 @@
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 1.5rem;
-            color: #10b981;
+            color: #FFD5D5;
         }
         
         .feature-title {
@@ -247,7 +247,7 @@
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background-color: #10b981;
+            background-color: #FFD5D5;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 50px;
@@ -279,7 +279,7 @@
         }
         
         .product-category {
-            color: #10b981;
+            color: #FFD5D5;
             font-weight: 600;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
@@ -316,14 +316,14 @@
         
         .feature-item::before {
             content: '✓';
-            color: #10b981;
+            color: #FFD5D5;
             font-weight: bold;
             margin-right: 0.5rem;
         }
         
         .product-price {
             font-size: 1.8rem;
-            color: #10b981;
+            color: #FFD5D5;
             font-weight: 700;
             margin-bottom: 1.5rem;
             display: block;
@@ -333,7 +333,7 @@
             width: 100%;
             text-align: center;
             padding: 1rem;
-            background-color: #10b981;
+            background-color: #FFD5D5;
             color: white;
             border: none;
             border-radius: 8px;
@@ -346,7 +346,7 @@
         }
         
         .add-to-cart:hover {
-            background-color: #059669;
+            background-color: #FFD5D5;
             transform: translateY(-2px);
         }
         
@@ -373,7 +373,7 @@
         .step-number {
             width: 60px;
             height: 60px;
-            background-color: #10b981;
+            background-color: #FFD5D5;
             color: white;
             border-radius: 50%;
             display: flex;
@@ -436,7 +436,7 @@
         .testimonial-text::before {
             content: '"';
             font-size: 4rem;
-            color: #10b981;
+            color: #FFD5D5;
             opacity: 0.2;
             position: absolute;
             top: -1rem;
@@ -470,7 +470,7 @@
         /* CTA Section */
         .cta {
             padding: 6rem 5%;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #FFD5D5 0%, #ffcbcb 100%);
             color: white;
             text-align: center;
         }
@@ -492,7 +492,7 @@
         
         .cta .btn {
             background-color: #ffffff;
-            color: #10b981;
+            color: #FFD5D5;
         }
         
         /* Footer */
@@ -517,7 +517,7 @@
         }
         
         .footer-logo span {
-            color: #10b981;
+            color: #FFD5D5;
         }
         
         .footer-desc {
@@ -543,7 +543,7 @@
         }
         
         .social-link:hover {
-            background-color: #10b981;
+            background-color: #FFD5D5;
             transform: translateY(-2px);
         }
         
@@ -558,7 +558,7 @@
             display: block;
             width: 30px;
             height: 2px;
-            background-color: #10b981;
+            background-color: #FFD5D5;
             margin-top: 0.5rem;
         }
         
@@ -576,7 +576,7 @@
         }
         
         .footer-links a:hover {
-            color: #10b981;
+            color: #FFD5D5;
         }
         
         .copyright {
