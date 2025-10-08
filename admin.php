@@ -1,3 +1,67 @@
+<?php
+// admin.php - Bagian Paling Atas File
+
+// 1. Panggil file koneksi database
+require_once 'api_store/api_storeapi/db_config.php';
+
+// --- A. Hitung Total Pelanggan Keseluruhan ---
+$total_customers = 0;
+$sql_total = "SELECT COUNT(id) AS total FROM customers";
+if ($result_total = $conn->query($sql_total)) {
+    $row_total = $result_total->fetch_assoc();
+    $total_customers = $row_total['total'];
+    $result_total->free();
+}
+
+// --- B. Hitung Pertumbuhan (Pelanggan Bulan Ini vs Bulan Lalu) ---
+
+// 2. Hitung pelanggan yang bergabung **Bulan Ini (M-0)**
+$start_of_current_month = date('Y-m-01 00:00:00');
+$customers_this_month = 0;
+
+$sql_this_month = "SELECT COUNT(id) AS total_this_month FROM customers 
+                   WHERE created_at >= '$start_of_current_month'";
+if ($result_this_month = $conn->query($sql_this_month)) {
+    $row_this_month = $result_this_month->fetch_assoc();
+    $customers_this_month = $row_this_month['total_this_month'];
+    $result_this_month->free();
+}
+
+// 3. Hitung pelanggan yang bergabung **Bulan Lalu (M-1)**
+$start_of_last_month = date('Y-m-01 00:00:00', strtotime('last month'));
+$end_of_last_month = date('Y-m-t 23:59:59', strtotime('last month'));
+
+$customers_last_month = 0;
+$sql_last_month = "SELECT COUNT(id) AS total_last_month FROM customers 
+                   WHERE created_at BETWEEN '$start_of_last_month' AND '$end_of_last_month'";
+if ($result_last_month = $conn->query($sql_last_month)) {
+    $row_last_month = $result_last_month->fetch_assoc();
+    $customers_last_month = $row_last_month['total_last_month'];
+    $result_last_month->free();
+}
+
+// --- C. Perhitungan Persentase Perubahan ---
+$percentage_change = 0;
+$growth_status = 'neutral'; 
+$growth_text = '0.0% dari bulan lalu';
+
+if ($customers_last_month > 0) {
+    $percentage_change = (($customers_this_month - $customers_last_month) / $customers_last_month) * 100;
+} elseif ($customers_this_month > 0) {
+    // Jika bulan lalu 0, tapi bulan ini ada (pertumbuhan tak terhingga, kita tampilkan 100%+)
+    $percentage_change = 100; 
+}
+
+$formatted_percentage = number_format(abs($percentage_change), 1) . '%';
+
+if ($percentage_change > 0) {
+    $growth_status = 'up'; // Class CSS untuk tren naik (biasanya hijau)
+    $growth_text = '+' . $formatted_percentage . ' dari bulan lalu';
+} elseif ($percentage_change < 0) {
+    $growth_status = 'down'; // Class CSS untuk tren turun (biasanya merah)
+    $growth_text = '-' . $formatted_percentage . ' dari bulan lalu';
+} ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -59,14 +123,20 @@
                     <div class="stat-value">328</div>
                     <div class="stat-change positive">+8.2% dari bulan lalu</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">Pelanggan Baru</div>
-                        <div class="stat-icon bg-orange">👥</div>
-                    </div>
-                    <div class="stat-value">142</div>
-                    <div class="stat-change positive">+5.7% dari bulan lalu</div>
-                </div>
+                
+    <div class="stat-card stat-link-overlay" id="statTotalCustomers" style="cursor:pointer;">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Total Pelanggan</div>
+            <div class="stat-icon bg-orange">👥</div>
+        </div>
+        <div class="stat-value"><?php echo number_format($total_customers, 0, ',', '.'); ?></div>
+        <div class="stat-change <?php echo $growth_class; ?>">
+            <?php echo $growth_text; ?>
+        </div>
+    </div>
+</div>
+</a>
                 <div class="stat-card">
                     <div class="stat-header">
                         <div class="stat-title">Produk Terjual</div>

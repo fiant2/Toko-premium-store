@@ -443,6 +443,16 @@ sidebarLinks.forEach(link => {
       }).catch(err => console.error(err));
   }
 
+  // Event klik pada kartu "Total Pelanggan" agar buka section pelanggan
+document.getElementById('statTotalCustomers')?.addEventListener('click', function() {
+  // Highlight menu sidebar "Pelanggan"
+  document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+  const pelangganMenu = Array.from(document.querySelectorAll('.sidebar-menu a')).find(a => a.textContent.toLowerCase().includes('pelanggan'));
+  if (pelangganMenu) pelangganMenu.classList.add('active');
+  // Tampilkan section pelanggan
+  showSection('customers');
+});
+
   // Sales
   const salesTableBody = document.querySelector('#salesTable tbody');
   const saleModal = document.getElementById('saleModal');
