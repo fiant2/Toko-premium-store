@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Admin Dashboard | Akun Premium Store</title>
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
     <div class="dashboard-container">
@@ -77,8 +77,8 @@
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
+            <div class="card" id="orders-section">
+                <div class="card-header" >
                     <h3 class="card-title">Pesanan Terbaru</h3>
                     <span class="card-action">Lihat Semua</span>
                 </div>
@@ -96,6 +96,7 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- contoh statis; admin.js akan memuat data khusus di section Penjualan -->
                             <tr>
                                 <td>#ORD-7821</td>
                                 <td>
@@ -110,63 +111,6 @@
                                 <td>YouTube Premium</td>
                                 <td>12 Nov 2024</td>
                                 <td>Rp 30.000</td>
-                                <td><span class="status status-completed">Selesai</span></td>
-                                <td>
-                                    <button class="action-btn btn-view">Lihat</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-7820</td>
-                                <td>
-                                    <div class="customer">
-                                        <div class="customer-avatar">S</div>
-                                        <div class="customer-info">
-                                            <span class="customer-name">Sarah Wijaya</span>
-                                            <span class="customer-email">sarah@email.com</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Spotify Premium</td>
-                                <td>11 Nov 2024</td>
-                                <td>Rp 25.000</td>
-                                <td><span class="status status-processing">Diproses</span></td>
-                                <td>
-                                    <button class="action-btn btn-view">Lihat</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-7819</td>
-                                <td>
-                                    <div class="customer">
-                                        <div class="customer-avatar">A</div>
-                                        <div class="customer-info">
-                                            <span class="customer-name">Andi Pratama</span>
-                                            <span class="customer-email">andi@email.com</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Netflix Premium</td>
-                                <td>10 Nov 2024</td>
-                                <td>Rp 35.000</td>
-                                <td><span class="status status-pending">Pending</span></td>
-                                <td>
-                                    <button class="action-btn btn-view">Lihat</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-7818</td>
-                                <td>
-                                    <div class="customer">
-                                        <div class="customer-avatar">D</div>
-                                        <div class="customer-info">
-                                            <span class="customer-name">Dewi Lestari</span>
-                                            <span class="customer-email">dewi@email.com</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Disney+ Hotstar</td>
-                                <td>9 Nov 2024</td>
-                                <td>Rp 40.000</td>
                                 <td><span class="status status-completed">Selesai</span></td>
                                 <td>
                                     <button class="action-btn btn-view">Lihat</button>
@@ -188,7 +132,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card" id="reviews-pending">
                 <div class="card-header">
                     <h3 class="card-title">Ulasan Menunggu Persetujuan</h3>
@@ -196,13 +140,56 @@
                 <div class="card-body">
                     <div class="reviews-list" id="pendingReviewsContainer">
                         <p>Memuat ulasan pending...</p>
-                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- ======== Pelanggan Section ======== -->
+            <div class="card" id="customers-section" style="display:none;">
+              <div class="card-header">
+                <h3 class="card-title">Daftar Pelanggan</h3>
+                <span class="card-action" id="addCustomerBtn">Tambah Pelanggan</span>
+              </div>
+              <div class="card-body" id="customersBody">
+                <div class="table-wrapper">
+                  <table class="table" id="customersTable">
+                    <thead>
+                      <tr>
+                        <th>ID</th><th>Nama</th><th>Email</th><th>Telepon</th><th>Terdaftar</th><th>Status</th><th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td colspan="7">Memuat pelanggan...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ======== Penjualan Section ======== -->
+            <div class="card" id="sales-section" style="display:none;">
+              <div class="card-header">
+                <h3 class="card-title">Data Penjualan</h3>
+                <span class="card-action" id="addSaleBtn">Buat Order Manual</span>
+              </div>
+              <div class="card-body" id="salesBody">
+                <table class="table" id="salesTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th><th>No. Order</th><th>Pelanggan</th><th>Total</th><th>Status</th><th>Tanggal</th><th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="7">Memuat data penjualan...</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
         </main>
     </div>
 
+    <!-- Modal: Tambah Produk (sudah ada dari sebelumnya) -->
     <div class="modal-overlay" id="addProductModal">
         <div class="modal">
             <div class="modal-header">
@@ -266,6 +253,63 @@
             </div>
 
     </div>
+
+    <!-- Modal: Customer (Tambah/Edit) -->
+    <div class="modal-overlay" id="customerModal" style="display:none;">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="customerModalTitle">Tambah Pelanggan</h3>
+          <button class="modal-close" id="customerModalClose">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="customerForm">
+            <input type="hidden" id="customerId">
+            <div class="form-group">
+              <label class="form-label">Nama</label>
+              <input class="form-input" id="customerName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" id="customerEmail" required type="email">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telepon</label>
+              <input class="form-input" id="customerPhone">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="customerStatus">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="banned">Banned</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-primary" id="saveCustomerBtn">Simpan</button>
+              <button class="modal-close" id="cancelCustomerBtn">Batal</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Sale Detail & Edit -->
+    <div class="modal-overlay" id="saleModal" style="display:none;">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="saleModalTitle">Detail Order</h3>
+          <button class="modal-close" id="saleModalClose">&times;</button>
+        </div>
+        <div class="modal-body" id="saleModalBody">
+          <p>Memuat detail...</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="changeStatusBtn">Ubah Status</button>
+          <button class="modal-close" id="closeSaleModal">Tutup</button>
+        </div>
+      </div>
+    </div>
+
     <script src="admin.js"></script>
 </body>
 </html>
