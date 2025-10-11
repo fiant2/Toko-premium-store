@@ -160,12 +160,7 @@
         }
         
         /* Dashboard Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+        
         
         .stat-card {
             background-color: white;
@@ -649,10 +644,7 @@
                 width: 100%;
             }
             
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
+    
             .products-grid {
                 grid-template-columns: 1fr;
             }
