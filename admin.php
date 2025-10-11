@@ -246,7 +246,7 @@ if ($percentage_change > 0) {
                 <table class="table" id="salesTable">
                   <thead>
                     <tr>
-                      <th>ID</th><th>No. Order</th><th>Pelanggan</th><th>Total</th><th>Status</th><th>Tanggal</th><th>Aksi</th>
+                      <th>ID</th><th>No. Order</th><th>Pelanggan</th><th>Produk</th><th>Total</th><th>Status</th><th>Tanggal</th><th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
