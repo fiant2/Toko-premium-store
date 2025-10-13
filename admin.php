@@ -62,6 +62,48 @@ if ($percentage_change > 0) {
     $growth_text = '-' . $formatted_percentage . ' dari bulan lalu';
 } ?>
 
+<?php
+
+// --- Hitung Total Pesanan dari Tabel Sales ---
+$total_orders = 0;
+$sql_orders = "SELECT COUNT(id) AS total_orders FROM sales";
+if ($result_orders = $conn->query($sql_orders)) {
+    $row_orders = $result_orders->fetch_assoc();
+    $total_orders = $row_orders['total_orders'];
+    $result_orders->free();
+}
+
+// --- Hitung Pertumbuhan Pesanan (Bulan Ini vs Bulan Lalu) ---
+// Gunakan variabel yang sudah ada dari customers (start_of_current_month, dll.)
+$orders_this_month = 0;
+$sql_orders_this = "SELECT COUNT(id) AS total_this FROM sales WHERE created_at >= '$start_of_current_month'";
+if ($result_orders_this = $conn->query($sql_orders_this)) {
+    $row_orders_this = $result_orders_this->fetch_assoc();
+    $orders_this_month = $row_orders_this['total_this'];
+    $result_orders_this->free();
+}
+
+$orders_last_month = 0;
+$sql_orders_last = "SELECT COUNT(id) AS total_last FROM sales WHERE created_at BETWEEN '$start_of_last_month' AND '$end_of_last_month'";
+if ($result_orders_last = $conn->query($sql_orders_last)) {
+    $row_orders_last = $result_orders_last->fetch_assoc();
+    $orders_last_month = $row_orders_last['total_last'];
+    $result_orders_last->free();
+}
+
+// Persentase perubahan
+$orders_percentage_change = 0;
+if ($orders_last_month > 0) {
+    $orders_percentage_change = (($orders_this_month - $orders_last_month) / $orders_last_month) * 100;
+} elseif ($orders_this_month > 0) {
+    $orders_percentage_change = 100;
+}
+$orders_formatted_percentage = number_format(abs($orders_percentage_change), 1) . '%';
+$orders_growth_status = $orders_percentage_change > 0 ? 'positive' : ($orders_percentage_change < 0 ? 'negative' : 'neutral');
+$orders_growth_text = $orders_percentage_change > 0 ? '+' . $orders_formatted_percentage . ' dari bulan lalu' : ($orders_percentage_change < 0 ? '-' . $orders_formatted_percentage . ' dari bulan lalu' : '0.0% dari bulan lalu');
+?>
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -115,14 +157,17 @@ if ($percentage_change > 0) {
                     <div class="stat-value">Rp 12.450.000</div>
                     <div class="stat-change positive">+12.5% dari bulan lalu</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">Total Pesanan</div>
-                        <div class="stat-icon bg-blue">🛒</div>
-                    </div>
-                    <div class="stat-value">328</div>
-                    <div class="stat-change positive">+8.2% dari bulan lalu</div>
-                </div>
+<!-- stat card Total Pesanan: -->
+<div class="stat-card stat-link-overlay" id="statTotalOrders" style="cursor:pointer;">
+    <div class="stat-header">
+        <div class="stat-title">Total Pesanan</div>
+        <div class="stat-icon bg-blue">🛒</div>
+    </div>
+    <div class="stat-value"><?php echo number_format($total_orders, 0, ',', '.'); ?></div>
+    <div class="stat-change <?php echo $orders_growth_status; ?>">
+        <?php echo $orders_growth_text; ?>
+    </div>
+</div>
                 
     <div class="stat-card stat-link-overlay" id="statTotalCustomers" style="cursor:pointer;">
     <div class="stat-card">
@@ -146,50 +191,31 @@ if ($percentage_change > 0) {
                     <div class="stat-change positive">+10.3% dari bulan lalu</div>
                 </div>
             </div>
+            
 
             <div class="card" id="orders-section">
-                <div class="card-header" >
-                    <h3 class="card-title">Pesanan Terbaru</h3>
-                    <span class="card-action">Lihat Semua</span>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>ID Pesanan</th>
-                                <th>Pelanggan</th>
-                                <th>Produk</th>
-                                <th>Tanggal</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- contoh statis; admin.js akan memuat data khusus di section Penjualan -->
-                            <tr>
-                                <td>#ORD-7821</td>
-                                <td>
-                                    <div class="customer">
-                                        <div class="customer-avatar">R</div>
-                                        <div class="customer-info">
-                                            <span class="customer-name">Rizki Abdullah</span>
-                                            <span class="customer-email">rizki@email.com</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>YouTube Premium</td>
-                                <td>12 Nov 2024</td>
-                                <td>Rp 30.000</td>
-                                <td><span class="status status-completed">Selesai</span></td>
-                                <td>
-                                    <button class="action-btn btn-view">Lihat</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="card-header">
+        <h3 class="card-title">Pesanan Terbaru</h3>
+        <span class="card-action" onclick="showSection('sales')">Lihat Semua Penjualan</span>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID Pesanan</th>
+                    <th>Pelanggan</th>
+                    <th>Total</th>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+                <tr><td colspan="6">Memuat pesanan terbaru...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
             <div class="card" id="products-list">
                 <div class="card-header">
@@ -379,6 +405,7 @@ if ($percentage_change > 0) {
         </div>
       </div>
     </div>
+    
 
     <script src="admin.js"></script>
 </body>
