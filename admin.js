@@ -306,27 +306,132 @@ function showSection(name) {
 
 
 
-// Sidebar link handling (dengan highlight aktif)
+// Tambah 'orders' ke sectionsMap jika belum ada
+sectionsMap.orders = document.getElementById('orders-section');
+
+// Function untuk load Pesanan Terbaru (load semua, filter 5 terbaru di JS)
+function loadOrders() {
+    const tableBody = document.getElementById('ordersTableBody');
+    if (!tableBody) return;
+    tableBody.innerHTML = `<tr><td colspan="6">Memuat pesanan terbaru...</td></tr>`;
+
+    // Fetch SEMUA data dari admin_sales.php (tanpa limit)
+    fetch(`${API_BASE_URL}/admin_sales.php`)
+        .then(r => r.json())
+        .then(list => {
+            if (!Array.isArray(list) || list.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6">Belum ada pesanan.</td></tr>`;
+                return;
+            }
+            // Urutkan berdasarkan created_at DESC (terbaru dulu) dan ambil 5 teratas
+            const recentOrders = list
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 5);  // Ambil hanya 5 terbaru
+
+            tableBody.innerHTML = '';
+            recentOrders.forEach(order => {
+                const customerName = order.customer_name || 'Guest';
+                const customerEmail = order.customer_email || 'N/A';
+                const statusClass = order.status === 'completed' ? 'status-completed' : 
+                                   (order.status === 'processing' ? 'status-processing' : 'status-pending');
+                tableBody.insertAdjacentHTML('beforeend', `
+                    <tr data-id="${order.id}">
+                        <td>#${order.order_number || order.id}</td>
+                        <td>
+                            <div class="customer">
+                                <div class="customer-avatar">${customerName.charAt(0)}</div>
+                                <div class="customer-info">
+                                    <span class="customer-name">${escapeHtml(customerName)}</span>
+                                    <span class="customer-email">${escapeHtml(customerEmail)}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Rp ${new Intl.NumberFormat('id-ID').format(parseFloat(order.total || 0))}</td>
+                        <td>${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
+                        <td><span class="status ${statusClass}">${escapeHtml(order.status)}</span></td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewOrder(${order.id})">Lihat</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        })
+        .catch(err => {
+            console.error('Error load orders:', err);
+            tableBody.innerHTML = `<tr><td colspan="6">Gagal memuat pesanan. Cek Laragon Apache/MySQL.</td></tr>`;
+        });
+}
+
+// Function helper untuk view order (reuse modal dari sales)
+function viewOrder(id) {
+    const tempBtn = { getAttribute: () => id };
+    handleViewSale.call(tempBtn);  // Panggil function existing dari sales section
+}
+
+// Update showSection untuk handle 'orders'
+function showSection(name) {
+    Object.values(sectionsMap).forEach(sec => {
+        if (sec) sec.style.display = 'none';
+    });
+
+    if (name === 'dashboard') {
+        sectionsMap.dashboard.style.display = 'grid';
+        if (sectionsMap.orders) sectionsMap.orders.style.display = 'block';
+        loadOrders();  // Load data saat dashboard dibuka
+    } else if (name === 'orders') {
+        if (sectionsMap.orders) sectionsMap.orders.style.display = 'block';
+        loadOrders();  // Load data saat section orders dibuka
+    } else if (sectionsMap[name]) {
+        sectionsMap[name].style.display = 'block';
+    }
+
+    // Load data lain (existing)
+    if (name === 'products') loadAdminProducts();
+    if (name === 'reviews') loadPendingReviews();
+    if (name === 'customers') loadCustomers();
+    if (name === 'sales') loadSales();
+    if (name === 'orders') loadOrders();
+}
+
+// Update event listener sidebar (tambah kondisi untuk "Pesanan")
 const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-
 sidebarLinks.forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
 
-    // hapus semua highlight dulu
+        const txt = this.textContent.trim().toLowerCase();
+        if (txt.includes('pesanan')) {  // Match menu "Pesanan"
+            showSection('orders');
+        } else if (txt.includes('pelanggan')) {
+            showSection('customers');
+        } else if (txt.includes('penjualan')) {
+            showSection('sales');
+        } else if (txt.includes('produk')) {
+            showSection('products');
+        } else if (txt.includes('ulasan')) {
+            showSection('reviews');
+        } else {
+            showSection('dashboard');
+        }
+    });
+});
+
+// Event listener untuk klik statTotalOrders (pindah ke section Pesanan)
+document.getElementById('statTotalOrders')?.addEventListener('click', function() {
+    // Highlight menu sidebar "Pesanan"
     sidebarLinks.forEach(l => l.classList.remove('active'));
+    const pesananMenu = Array.from(sidebarLinks).find(a => a.textContent.toLowerCase().includes('pesanan'));
+    if (pesananMenu) pesananMenu.classList.add('active');
+    // Tampilkan section orders
+    showSection('orders');
+});
 
-    // tambahkan highlight ke menu yang diklik
-    this.classList.add('active');
-
-    // tampilkan section sesuai menu
-    const txt = this.textContent.trim().toLowerCase();
-    if (txt.includes('pelanggan')) showSection('customers');
-    else if (txt.includes('penjualan')) showSection('sales');
-    else if (txt.includes('produk')) showSection('products');
-    else if (txt.includes('ulasan')) showSection('reviews');
-    else showSection('dashboard');
-  });
+// Inisialisasi: Load orders saat halaman dimuat (untuk dashboard)
+document.addEventListener('DOMContentLoaded', function() {
+    // ... kode existing ...
+    loadOrders();  // Tambah ini di akhir
 });
 
 
