@@ -405,6 +405,7 @@ $orders_growth_text = $orders_percentage_change > 0 ? '+' . $orders_formatted_pe
         </div>
       </div>
     </div>
+    
 
     <script src="admin.js"></script>
 </body>
