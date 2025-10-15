@@ -101,6 +101,48 @@ if ($orders_last_month > 0) {
 $orders_formatted_percentage = number_format(abs($orders_percentage_change), 1) . '%';
 $orders_growth_status = $orders_percentage_change > 0 ? 'positive' : ($orders_percentage_change < 0 ? 'negative' : 'neutral');
 $orders_growth_text = $orders_percentage_change > 0 ? '+' . $orders_formatted_percentage . ' dari bulan lalu' : ($orders_percentage_change < 0 ? '-' . $orders_formatted_percentage . ' dari bulan lalu' : '0.0% dari bulan lalu');
+
+// --- Hitung Total Pendapatan dari Tabel Sales ---
+$total_revenue = 0;
+$sql_revenue = "SELECT SUM(total) AS total_revenue FROM sales";
+if ($result_revenue = $conn->query($sql_revenue)) {
+    $row_revenue = $result_revenue->fetch_assoc();
+    $total_revenue = $row_revenue['total_revenue'] ? $row_revenue['total_revenue'] : 0;
+    $result_revenue->free();
+}
+
+// --- Hitung Pertumbuhan Pendapatan (Bulan Ini vs Bulan Lalu) ---
+$start_of_current_month = date('Y-m-01 00:00:00');
+$revenue_this_month = 0;
+$sql_this_month = "SELECT SUM(total) AS revenue_this_month FROM sales WHERE created_at >= '$start_of_current_month'";
+if ($result_this_month = $conn->query($sql_this_month)) {
+    $row_this_month = $result_this_month->fetch_assoc();
+    $revenue_this_month = $row_this_month['revenue_this_month'] ? $row_this_month['revenue_this_month'] : 0;
+    $result_this_month->free();
+}
+
+$start_of_last_month = date('Y-m-01 00:00:00', strtotime('last month'));
+$end_of_last_month = date('Y-m-t 23:59:59', strtotime('last month'));
+$revenue_last_month = 0;
+$sql_last_month = "SELECT SUM(total) AS revenue_last_month FROM sales WHERE created_at BETWEEN '$start_of_last_month' AND '$end_of_last_month'";
+if ($result_last_month = $conn->query($sql_last_month)) {
+    $row_last_month = $result_last_month->fetch_assoc();
+    $revenue_last_month = $row_last_month['revenue_last_month'] ? $row_last_month['revenue_last_month'] : 0;
+    $result_last_month->free();
+}
+
+// Hitung persentase perubahan
+$revenue_percentage_change = 0;
+if ($revenue_last_month > 0) {
+    $revenue_percentage_change = (($revenue_this_month - $revenue_last_month) / $revenue_last_month) * 100;
+} elseif ($revenue_this_month > 0) {
+    $revenue_percentage_change = 100;  // Jika bulan lalu 0, anggap 100% pertumbuhan
+}
+$revenue_formatted_percentage = number_format(abs($revenue_percentage_change), 1) . '%';
+$revenue_growth_status = $revenue_percentage_change > 0 ? 'positive' : ($revenue_percentage_change < 0 ? 'negative' : 'neutral');
+$revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted_percentage . ' dari bulan lalu' : 
+                       ($revenue_percentage_change < 0 ? '-' . $revenue_formatted_percentage . ' dari bulan lalu' : '0.0% dari bulan lalu');
+
 ?>
 
 
@@ -149,14 +191,16 @@ $orders_growth_text = $orders_percentage_change > 0 ? '+' . $orders_formatted_pe
             </div>
 
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">Total Pendapatan</div>
-                        <div class="stat-icon bg-green">💰</div>
-                    </div>
-                    <div class="stat-value">Rp 12.450.000</div>
-                    <div class="stat-change positive">+12.5% dari bulan lalu</div>
-                </div>
+<div class="stat-card stat-link-overlay" id="statTotalRevenue" style="cursor:pointer;">
+    <div class="stat-header">
+        <div class="stat-title">Total Pendapatan</div>
+        <div class="stat-icon bg-green">💰</div>
+    </div>
+    <div class="stat-value">Rp <?php echo number_format($total_revenue, 0, ',', '.'); ?></div>
+    <div class="stat-change <?php echo $revenue_growth_status; ?>">
+        <?php echo $revenue_growth_text; ?>
+    </div>
+</div>
 <!-- stat card Total Pesanan: -->
 <div class="stat-card stat-link-overlay" id="statTotalOrders" style="cursor:pointer;">
     <div class="stat-header">
