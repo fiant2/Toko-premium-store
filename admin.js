@@ -660,6 +660,16 @@ document.getElementById('statTotalCustomers')?.addEventListener('click', functio
       }).catch(err => console.error(err));
   }
 
+        // Event listener untuk Total Pendapatan agar buka section penjualan
+document.getElementById('statTotalRevenue')?.addEventListener('click', function() {
+    // Highlight menu sidebar "Penjualan"
+    document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+    const penjualanMenu = Array.from(document.querySelectorAll('.sidebar-menu a')).find(a => a.textContent.toLowerCase().includes('penjualan'));
+    if (penjualanMenu) penjualanMenu.classList.add('active');
+    // Tampilkan section penjualan
+    showSection('sales');
+});
+
     // --- Panggil Fungsi Utama ---
     loadAdminProducts(); 
     loadPendingReviews(); 
