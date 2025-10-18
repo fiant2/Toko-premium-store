@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout - Toko Premium Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; transition: transform 0.3s; }
+        .container:hover { transform: scale(1.02); }
+        h2 { color: #4a5568; margin-bottom: 20px; }
+        p { color: #666; margin-bottom: 30px; }
+        button { padding: 12px 24px; background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background 0.3s; margin: 10px; }
+        button:hover { background: linear-gradient(135deg, #c53030 0%, #9b2c2c 100%); }
+        .links a { color: #667eea; text-decoration: none; margin: 0 10px; }
+        .links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <i class="fas fa-sign-out-alt" style="font-size: 60px; color: #e53e3e; margin-bottom: 10px;"></i>
+        <h2>Logout Akun</h2>
+        <p>Anda yakin ingin keluar dari akun? Sesi akan dihapus.</p>
+        <button onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Ya, Logout</button>
+        <button onclick="window.location.href='index.html'"><i class="fas fa-times"></i> Batal</button>
+        <div class="links" style="margin-top: 20px;">
+            <a href="loginuser.html">Masuk Kembali</a>
+            <a href="index.html">Kembali ke Beranda</a>
+        </div>
+    </div>
+<script>
+    function doLogout() {
+        fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/logout_process.php', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Logout berhasil!');
+                window.location.href = 'loginuser.html';  // Redirect ke halaman login
+            } else {
+                alert('Gagal logout.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>

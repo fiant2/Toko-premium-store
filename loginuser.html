@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Toko Premium Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; transition: transform 0.3s; }
+        .container:hover { transform: scale(1.02); }
+        h2 { color: #4a5568; margin-bottom: 30px; }
+        input[type="email"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; }
+        input:focus { border-color: #667eea; outline: none; }
+        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background 0.3s; margin: 10px 0; }
+        button:hover { background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%); }
+        .links { margin-top: 20px; }
+        .links a { color: #667eea; text-decoration: none; margin: 0 10px; }
+        .links a:hover { text-decoration: underline; }
+        .error { color: red; font-size: 14px; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <i class="fas fa-user-circle" style="font-size: 60px; color: #667eea; margin-bottom: 10px;"></i>
+        <h2>Masuk ke Akun Anda</h2>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Kata Sandi" required>
+            <div id="errorMsg" class="error"></div>
+            <button type="submit"><i class="fas fa-sign-in-alt"></i> Masuk</button>
+        </form>
+        <div class="links">
+            <a href="register.html">Belum punya akun? Daftar</a>
+            <a href="index.html">Kembali ke Beranda</a>
+        </div>
+    </div>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('errorMsg');
+
+        if (!email || !password) {
+            errorMsg.textContent = 'Email dan password harus diisi!';
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/login_process.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Login berhasil!');
+                window.location.href = 'indexuser.html';  // Redirect ke halaman indexuser.html
+            } else {
+                errorMsg.textContent = data.message;
+                errorMsg.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorMsg.textContent = 'Terjadi kesalahan server.';
+            errorMsg.style.display = 'block';
+        });
+    });
+</script>
+</body>
+</html>

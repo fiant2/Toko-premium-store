@@ -23,9 +23,32 @@
             <div class="header-actions">
                 <div class="search-icon">🔍</div>
                 <div class="cart-icon" id="cartIcon">🛒</div>
+                <div class="profile-icon" id="profileIcon" style="margin-left:20px;">
+                  <img src="https://api.dicebear.com/7.x/icons/svg?seed=user" alt="Profil" style="width:38px;height:38px;border-radius:50%;border:2px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.07);background:#fff;">
+                </div>
+                <button id="logoutBtn" class="btn btn-logout" style="margin-left:20px;">Logout</button>
             </div>
         </div>
+
+<div id="profilePopup" class="profile-popup" style="display:none;">
+  <div class="profile-popup-header">
+    <img id="popupAvatar" src="https://api.dicebear.com/7.x/icons/svg?seed=user" alt="Avatar" class="profile-avatar">
+    <div>
+      <div class="profile-popup-name" id="popupProfileName"></div>
+      <div class="profile-popup-email" id="popupProfileEmail"></div>
+    </div>
+  </div>
+  <hr>
+  <button class="btn btn-profile-close" onclick="document.getElementById('profilePopup').style.display='none'">Tutup</button>
+</div>
     </header>
+
+<div id="profilePopup" class="profile-popup" style="display:none; position:absolute; top:70px; right:40px; background:#fff; border:1px solid #ddd; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); padding:18px 28px; z-index:1000;">
+    <h4 style="margin-top:0;">Profil Pengguna</h4>
+    <p><strong>Nama:</strong> <span id="popupProfileName"></span></p>
+    <p><strong>Email:</strong> <span id="popupProfileEmail"></span></p>
+    <button onclick="document.getElementById('profilePopup').style.display='none'" style="margin-top:10px;">Tutup</button>
+</div>
 
     <section class="hero">
         <div class="hero-content">
@@ -156,11 +179,46 @@
             </div>
         </div>
         <div class="copyright">
-            © 2024 Akun Premium Store. All rights reserved.
+            ﾂｩ 2024 Akun Premium Store. All rights reserved.
         </div>
     </footer>
 
     <script src="user.js"></script>
+    <script>
+document.getElementById('logoutBtn')?.addEventListener('click', function() {
+    fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/logout_process.php')
+        .then(r => r.json())
+        .then(data => {
+            alert('Logout berhasil!');
+            window.location.href = 'loginuser.html';
+        })
+        .catch(() => {
+            alert('Gagal logout. Silakan coba lagi.');
+        });
+});
+
+let userProfileData = null;
+fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/check_session.php')
+  .then(r => r.json())
+  .then(data => {
+    if (!data.logged_in) {
+      alert('Silakan login terlebih dahulu!');
+      window.location.href = 'loginuser.html';
+    } else {
+      userProfileData = data;
+    }
+  });
+
+document.getElementById('profileIcon')?.addEventListener('click', function(e) {
+    if (userProfileData) {
+        document.getElementById('popupProfileName').textContent = userProfileData.user_name;
+        document.getElementById('popupProfileEmail').textContent = userProfileData.user_email;
+        // Avatar dinamis berdasarkan nama/email
+        document.getElementById('popupAvatar').src = `https://api.dicebear.com/7.x/icons/svg?seed=${encodeURIComponent(userProfileData.user_name||'user')}`;
+        document.getElementById('profilePopup').style.display = 'block';
+    }
+});
+</script>
 
     
 </body>
