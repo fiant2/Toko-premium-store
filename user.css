@@ -98,7 +98,7 @@
         
         /* Hero section */
         .hero {
-            background: linear-gradient(135deg, rgba(215, 183, 206, 0.95) 0%, rgba(250, 49, 200, 0.95) 100%), url('https://placeholder-image-service.onrender.com/image/1600x900?prompt=Modern%20digital%20store%20interface%20with%20premium%20accounts%20and%20secure%20transactions&id=hero-bg');
+            background: linear-gradient(135deg, rgba(215, 183, 206, 0.95) 0%, rgba(250, 49, 200, 0.95) 100%), url('https://i.pinimg.com/736x/a3/bc/6d/a3bc6da1d16f3dc0ff041e4d5b40ce80.jpg');
             background-size: cover;
             background-position: center;
             height: 90vh;

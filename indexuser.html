@@ -23,16 +23,19 @@
             <div class="header-actions">
                 <div class="search-icon">🔍</div>
                 <div class="cart-icon" id="cartIcon">🛒</div>
-                <div class="profile-icon" id="profileIcon" style="margin-left:20px;">
-                  <img src="https://api.dicebear.com/7.x/icons/svg?seed=user" alt="Profil" style="width:38px;height:38px;border-radius:50%;border:2px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.07);background:#fff;">
+                    <div id="profileIcon" style="margin-left:20px; cursor:pointer;">
+                 <img id="headerAvatar" 
+                       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM19VBNETVqcLJcoO6pq6cSz6JHrCzJfkb3g&s" 
+                       alt="Profil Pengguna" 
+                       style="width:38px;height:38px;border-radius:50%;border:2px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.07);background:#fff;">
                 </div>
-                <button id="logoutBtn" class="btn btn-logout" style="margin-left:20px;">Logout</button>
+                    <button id="logoutBtn" class="btn btn-logout" style="margin-left:20px;">Logout</button>
             </div>
         </div>
 
 <div id="profilePopup" class="profile-popup" style="display:none;">
   <div class="profile-popup-header">
-    <img id="popupAvatar" src="https://api.dicebear.com/7.x/icons/svg?seed=user" alt="Avatar" class="profile-avatar">
+    <img id="popupAvatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM19VBNETVqcLJcoO6pq6cSz6JHrCzJfkb3g&s" alt="Avatar" class="profile-avatar">
     <div>
       <div class="profile-popup-name" id="popupProfileName"></div>
       <div class="profile-popup-email" id="popupProfileEmail"></div>
@@ -214,7 +217,7 @@ document.getElementById('profileIcon')?.addEventListener('click', function(e) {
         document.getElementById('popupProfileName').textContent = userProfileData.user_name;
         document.getElementById('popupProfileEmail').textContent = userProfileData.user_email;
         // Avatar dinamis berdasarkan nama/email
-        document.getElementById('popupAvatar').src = `https://api.dicebear.com/7.x/icons/svg?seed=${encodeURIComponent(userProfileData.user_name||'user')}`;
+        document.getElementById('popupAvatar').src = `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM19VBNETVqcLJcoO6pq6cSz6JHrCzJfkb3g&s{encodeURIComponent(userProfileData.user_name||'user')}`;
         document.getElementById('profilePopup').style.display = 'block';
     }
 });
