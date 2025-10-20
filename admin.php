@@ -247,7 +247,10 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
             <thead>
                 <tr>
                     <th>ID Pesanan</th>
-                    <th>Pelanggan</th>
+                    <th>Id Pelanggan</th>
+                    <th>Produk</th>
+                    <th>Metode Pembayaran</th>
+                    <th>Catatan</th>
                     <th>Total</th>
                     <th>Tanggal</th>
                     <th>Status</th>
@@ -316,7 +319,16 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
                 <table class="table" id="salesTable">
                   <thead>
                     <tr>
-                      <th>ID</th><th>No. Order</th><th>Pelanggan</th><th>Produk</th><th>Total</th><th>Status</th><th>Tanggal</th><th>Aksi</th>
+                      <th>ID</th>
+      <th>Nomor Order</th>
+      <th>ID Pelanggan</th>
+      <th>Produk</th>
+      <th>Total</th>
+      <th>Status</th>
+      <th>Metode Pembayaran</th>
+      <th>Catatan</th>
+      <th>Tanggal</th>
+      <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
