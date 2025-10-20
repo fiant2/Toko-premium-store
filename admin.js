@@ -305,89 +305,199 @@ function showSection(name) {
 }
 
 
-
+// # nama db nya sales, tombolnya pesanan
 // Tambah 'orders' ke sectionsMap jika belum ada
 sectionsMap.orders = document.getElementById('orders-section');
 
 // Function untuk load Pesanan Terbaru (load semua, filter 5 terbaru di JS)
 function loadOrders() {
-    const tableBody = document.getElementById('ordersTableBody');
-    if (!tableBody) return;
-    tableBody.innerHTML = `<tr><td colspan="9">Memuat pesanan terbaru...</td></tr>`;
+  const tableBody = document.getElementById('ordersTableBody');
+  if (!tableBody) return;
+  tableBody.innerHTML = `<tr><td colspan="9">Memuat pesanan terbaru...</td></tr>`;
 
-    // Fetch SEMUA data dari admin_sales.php (tanpa limit)
-    fetch(`${API_BASE_URL}/admin_sales.php`)
-        .then(r => r.json())
-        .then(list => {
-            if (!Array.isArray(list) || list.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="9">Belum ada pesanan.</td></tr>`;
-                return;
-            }
+  fetch(`${API_BASE_URL}/admin_sales.php`)
+    .then(r => r.json())
+    .then(list => {
+      if (!Array.isArray(list) || list.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="9">Belum ada pesanan.</td></tr>`;
+        return;
+      }
 
-            // Urutkan berdasarkan created_at DESC (terbaru dulu) dan ambil 5 teratas
-            const recentOrders = list
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                .slice(0, 5); // Ambil hanya 5 terbaru
+      const recentOrders = list
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 5);
 
-            tableBody.innerHTML = '';
+      tableBody.innerHTML = '';
 
-            recentOrders.forEach(order => {
-                const statusClass =
-                    order.status === 'completed' ? 'status-completed' :
-                    order.status === 'processing' ? 'status-processing' :
-                    order.status === 'refunded' ? 'status-refunded' :
-                    'status-pending';
+      recentOrders.forEach(order => {
+        const statusClass =
+          order.status === 'completed' ? 'status-completed' :
+          order.status === 'processing' ? 'status-processing' :
+          order.status === 'refunded' ? 'status-refunded' :
+          'status-pending';
 
-                // Format total ke Rupiah
-                const totalValue = Math.round(parseFloat(order.total)) || 0;
-                const formattedTotal = new Intl.NumberFormat('id-ID', {
-                    style: 'currency',
-                    currency: 'IDR',
-                    minimumFractionDigits: 0
-                }).format(totalValue);
+        const totalValue = Math.round(parseFloat(order.total)) || 0;
+        const formattedTotal = new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          minimumFractionDigits: 0
+        }).format(totalValue);
 
-                // Parse produk (jika JSON)
-                let produkDisplay = '-';
-                try {
-                    const products = JSON.parse(order.products);
-                    if (Array.isArray(products) && products.length > 0) {
-                        produkDisplay = products.map(p => p.name || p.product_id).join(', ');
-                    } else if (typeof order.products === 'string') {
-                        produkDisplay = order.products;
-                    }
-                } catch {
-                    produkDisplay = order.products || '-';
-                }
+        let produkDisplay = '-';
+        try {
+          const products = JSON.parse(order.products);
+          if (Array.isArray(products) && products.length > 0) {
+            produkDisplay = products.map(p => p.name || p.product_id).join(', ');
+          } else if (typeof order.products === 'string') {
+            produkDisplay = order.products;
+          }
+        } catch {
+          produkDisplay = order.products || '-';
+        }
 
-                // Masukkan baris tabel
-                tableBody.insertAdjacentHTML('beforeend', `
-                    <tr data-id="${order.id}">
-                        <td>#${order.order_number || order.id}</td>
-                        <td>${order.customer_id || '-'}</td>
-                        <td>${escapeHtml(produkDisplay)}</td>
-                        <td>${escapeHtml(order.payment_method || '-')}</td>
-                        <td>${escapeHtml(order.note || '-')}</td>
-                        <td>${formattedTotal}</td>
-                        <td>${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
-                        <td><span class="status ${statusClass}">${escapeHtml(order.status)}</span></td>
-                        <td>
-                            <button class="action-btn btn-view" onclick="viewOrder(${order.id})">Lihat</button>
-                        </td>
-                    </tr>
-                `);
-            });
-        })
-        .catch(err => {
-            console.error('Error load orders:', err);
-            tableBody.innerHTML = `<tr><td colspan="9">Gagal memuat pesanan. Cek Laragon Apache/MySQL.</td></tr>`;
-        });
+        tableBody.insertAdjacentHTML('beforeend', `
+          <tr data-id="${order.id}">
+            <td>#${order.order_number || order.id}</td>
+            <td>${order.customer_id || '-'}</td>
+            <td>${escapeHtml(produkDisplay)}</td>
+            <td>${escapeHtml(order.payment_method || '-')}</td>
+            <td>${escapeHtml(order.note || '-')}</td>
+            <td>${formattedTotal}</td>
+            <td>${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
+            <td><span class="status ${statusClass}">${escapeHtml(order.status)}</span></td>
+            <td>
+              <button class="action-btn btn-view-order" data-id="${order.id}">Lihat</button>
+              <button class="action-btn btn-edit-order" data-id="${order.id}">Edit</button>
+              <button class="action-btn btn-delete-order" data-id="${order.id}">Hapus</button>
+            </td>
+          </tr>
+        `);
+      });
+
+      // ✅ Pastikan listener dipasang setelah render selesai
+      attachOrderListeners();
+    })
+    .catch(err => {
+      console.error('Error load orders:', err);
+      tableBody.innerHTML = `<tr><td colspan="9">Gagal memuat pesanan. Cek Laragon Apache/MySQL.</td></tr>`;
+    });
+}
+  
+
+// --- Lihat Detail Order ---
+function handleViewOrder() {
+  const id = this.getAttribute('data-id');
+  fetch(`${API_BASE_URL}/admin_sales.php?id=${id}`)
+    .then(r => r.json())
+    .then(order => {
+      // Format total ke Rupiah
+      const totalFormatted = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(parseFloat(order.total || 0));
+
+      // Parsing produk
+      let produkList = '';
+      try {
+        const products = JSON.parse(order.products);
+        if (Array.isArray(products) && products.length > 0) {
+          produkList = '<ul>' + products.map(p =>
+            `<li>${p.name || p.product_id} — qty: ${p.qty || 1} — Rp ${new Intl.NumberFormat('id-ID').format(p.price || 0)}</li>`
+          ).join('') + '</ul>';
+        } else produkList = '-';
+      } catch { produkList = escapeHtml(order.products || '-'); }
+
+      // Buat modal tampilan
+      const modalHTML = `
+        <div id="orderDetailModal" class="modal" style="display:flex;">
+          <div class="modal-content" style="max-width:600px;">
+            <span class="modal-close" id="closeOrderDetail">&times;</span>
+            <h3>Detail Pesanan ${escapeHtml(order.order_number || '')}</h3>
+            <p><strong>Pelanggan:</strong> ${escapeHtml(order.customer_name || order.customer_id || '-')}</p>
+            <p><strong>Status:</strong> ${escapeHtml(order.status)}</p>
+            <p><strong>Total:</strong> ${totalFormatted}</p>
+            <p><strong>Metode Pembayaran:</strong> ${escapeHtml(order.payment_method || '-')}</p>
+            <p><strong>Catatan:</strong> ${escapeHtml(order.note || '-')}</p>
+            <hr>
+            <h4>Produk</h4>
+            ${produkList}
+            <hr>
+            <button id="closeOrderBtn" class="action-btn">Tutup</button>
+          </div>
+        </div>
+      `;
+      
+      // Hapus modal lama jika ada
+      const existingModal = document.getElementById('orderDetailModal');
+      if (existingModal) existingModal.remove();
+
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+      // Tombol tutup modal
+      document.getElementById('closeOrderDetail').onclick = () => document.getElementById('orderDetailModal').remove();
+      document.getElementById('closeOrderBtn').onclick = () => document.getElementById('orderDetailModal').remove();
+    })
+    .catch(err => console.error('Error lihat order:', err));
+}
+
+// --- Edit Order ---
+function handleEditOrder() {
+  const id = this.getAttribute('data-id');
+  const newStatus = prompt('Masukkan status baru (pending, processing, completed, refunded):');
+  if (!newStatus) return alert('Edit dibatalkan.');
+
+  fetch(`${API_BASE_URL}/admin_sales.php?id=${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: newStatus })
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'success') {
+        alert('✅ Status pesanan diperbarui.');
+        loadOrders();
+      } else {
+        alert('❌ Gagal memperbarui: ' + (res.message || JSON.stringify(res)));
+      }
+    })
+    .catch(err => console.error('Error edit order:', err));
+}
+
+// --- Hapus Order ---
+function handleDeleteOrder() {
+  const id = this.getAttribute('data-id');
+  if (!confirm('Yakin ingin menghapus pesanan ini?')) return;
+
+  fetch(`${API_BASE_URL}/admin_sales.php?id=${id}`, {
+    method: 'DELETE'
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === 'success') {
+        alert('🗑️ Pesanan dihapus.');
+        loadOrders();
+      } else {
+        alert('❌ Gagal menghapus pesanan: ' + (res.message || JSON.stringify(res)));
+      }
+    })
+    .catch(err => console.error('Error hapus order:', err));
 }
 
 
-// Function helper untuk view order (reuse modal dari sales)
-function viewOrder(id) {
-    const tempBtn = { getAttribute: () => id };
-    handleViewSale.call(tempBtn);  // Panggil function existing dari sales section
+function attachOrderListeners() {
+  document.querySelectorAll('.btn-view-order').forEach(b => {
+    b.removeEventListener('click', handleViewOrder);
+    b.addEventListener('click', handleViewOrder);
+  });
+  document.querySelectorAll('.btn-edit-order').forEach(b => {
+    b.removeEventListener('click', handleEditOrder);
+    b.addEventListener('click', handleEditOrder);
+  });
+  document.querySelectorAll('.btn-delete-order').forEach(b => {
+    b.removeEventListener('click', handleDeleteOrder);
+    b.addEventListener('click', handleDeleteOrder);
+  });
 }
 
 // Update showSection untuk handle 'orders'
@@ -450,14 +560,7 @@ document.getElementById('statTotalOrders')?.addEventListener('click', function()
     showSection('orders');
 });
 
-// Inisialisasi: Load orders saat halaman dimuat (untuk dashboard)
-document.addEventListener('DOMContentLoaded', function() {
-    // ... kode existing ...
-    loadOrders();  // Tambah ini di akhir
-});
-
-
-  // Customers
+  // # Customers atau pelanggan
   const customersTableBody = document.querySelector('#customersTable tbody');
   const customerModal = document.getElementById('customerModal');
   const customerForm = document.getElementById('customerForm');
@@ -580,7 +683,7 @@ document.getElementById('statTotalCustomers')?.addEventListener('click', functio
   showSection('customers');
 });
 
-  // Sales
+  // Sales atau penjualan
   const salesTableBody = document.querySelector('#salesTable tbody');
   const saleModal = document.getElementById('saleModal');
 
@@ -733,4 +836,5 @@ document.getElementById('statTotalRevenue')?.addEventListener('click', function(
     // --- Panggil Fungsi Utama ---
     loadAdminProducts(); 
     loadPendingReviews(); 
+    loadOrders();
 });
