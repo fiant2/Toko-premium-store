@@ -35,10 +35,40 @@ if ($method === 'GET') {
         exit;
     }
     // default: list all
-    $stmt = $conn->prepare("SELECT s.id, s.order_number, s.total, s.status, s.created_at, c.name as customer_name FROM sales s LEFT JOIN customers c ON s.customer_id = c.id ORDER BY s.created_at DESC");
+$stmt = $conn->prepare("
+        SELECT 
+            s.id, 
+            s.order_number, 
+            s.customer_id, 
+            s.products, 
+            s.total, 
+            s.status, 
+            s.payment_method, 
+            s.note, 
+            s.created_at
+        FROM sales s 
+        LEFT JOIN customers c ON s.customer_id = c.id
+        ORDER BY s.created_at DESC
+    ");
     $stmt->execute();
     $res = $stmt->get_result();
-    $rows = []; while ($r = $res->fetch_assoc()) $rows[] = $r;
+
+    $rows = [];
+    while ($r = $res->fetch_assoc()) {
+        // Pastikan data aman & lengkap
+        $rows[] = [
+            'id' => $r['id'],
+            'order_number' => $r['order_number'],
+            'customer_id' => $r['customer_id'],
+            'products' => $r['products'],
+            'total' => $r['total'],
+            'status' => $r['status'],
+            'payment_method' => $r['payment_method'],
+            'note' => $r['note'],
+            'created_at' => $r['created_at']
+        ];
+    }
+
     echo json_encode($rows);
     exit;
 }
