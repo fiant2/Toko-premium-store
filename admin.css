@@ -351,6 +351,10 @@
             background-color: #dbeafe;
             color: #1d4ed8;
         }
+        .status-refunded {
+             background-color: #fee2e2;
+             color: #dc2626;
+            }
         
         .action-btn {
             padding: 0.5rem 1rem;
