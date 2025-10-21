@@ -1,6 +1,29 @@
 // user.js - MENGGUNAKAN API PHP XAMPP
 document.addEventListener('DOMContentLoaded', function() {
-    
+    async function checkOrderStatus() {
+  try {
+    const response = await fetch('check_order.php');
+    const data = await response.json();
+    const form = document.getElementById('reviewForm');
+    const notice = document.getElementById('reviewNotice');
+
+    if (!data.success) {
+      // Kalau belum checkout, sembunyikan form dan tampilkan pesan
+      form.style.display = 'none';
+      notice.style.display = 'block';
+    } else {
+      // Kalau sudah checkout, tampilkan form
+      form.style.display = 'block';
+      notice.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Gagal cek status checkout:', error);
+  }
+}
+
+// Jalankan fungsi ini setelah halaman dimuat
+document.addEventListener('DOMContentLoaded', checkOrderStatus);
+
     // GANTI KE ALAMAT API PHP ANDA
 const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
     
@@ -58,6 +81,31 @@ const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_s
             productsGrid.innerHTML = '<p class="text-danger">Produk gagal dimuat. Pastikan XAMPP Apache dan MySQL berjalan.</p>';
         });
     }
+
+    // Cek apakah user sudah pernah belanja
+async function checkOrderPermission() {
+  try {
+    const res = await fetch('check_order.php');
+    const data = await res.json();
+    const form = document.getElementById('reviewForm');
+    const msg = document.getElementById('reviewMsg');
+
+    if (!data.success) {
+      form.style.display = 'none';
+      msg.style.display = 'block';
+      msg.textContent = 'Anda hanya bisa menulis ulasan setelah menyelesaikan pembelian.';
+    } else {
+      form.style.display = 'block';
+      msg.style.display = 'none';
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Jalankan fungsi saat halaman dimuat
+checkOrderPermission();
+
 
     // --- 2. Load Ulasan yang Disetujui Admin (GET dari PHP) ---
     function generateReviewCardHTML(review) {

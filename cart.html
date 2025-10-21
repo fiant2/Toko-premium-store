@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keranjang Belanja</title>
+  <link rel="stylesheet" href="user.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 40px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .cart-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-item-name {
+      font-weight: 600;
+    }
+    .cart-item-qty {
+      margin: 0 10px;
+    }
+    .total {
+      text-align: right;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+    .btn-remove {
+      background: #dc3545;
+    }
+    .btn-remove:hover {
+      background: #b02a37;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🛒 Keranjang Belanja</h2>
+  <div class="cart-container" id="cartItems"></div>
+  <div class="total" id="totalPrice"></div>
+  <button class="btn" id="checkoutBtn">Lanjut ke Checkout</button>
+
+  <script>
+    // Ambil data keranjang dari localStorage
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartContainer = document.getElementById('cartItems');
+    const totalPriceEl = document.getElementById('totalPrice');
+
+    // Kalau kosong
+    if (cart.length === 0) {
+      cartContainer.innerHTML = "<p>Keranjang kamu kosong 😢</p>";
+      document.getElementById('checkoutBtn').style.display = 'none';
+    } else {
+      let total = 0;
+      cartContainer.innerHTML = cart.map((item, index) => {
+        total += item.price * item.qty;
+        return `
+          <div class="cart-item">
+            <span class="cart-item-name">${item.name}</span>
+            <div>
+              <button class="btn btn-remove" onclick="removeItem(${index})">Hapus</button>
+              <span class="cart-item-qty">x${item.qty}</span>
+              <span>Rp${(item.price * item.qty).toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+      totalPriceEl.textContent = "Total: Rp" + total.toLocaleString();
+    }
+
+    // Hapus item
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      location.reload();
+    }
+
+    // Tombol checkout
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      alert('Lanjut ke halaman checkout!');
+      window.location.href = 'checkout.html';
+    });
+  </script>
+</body>
+</html>

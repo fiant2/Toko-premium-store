@@ -13,25 +13,35 @@
             <div class="logo">Akun<span>Premium</span></div>
             <nav>
                 <ul>
-                    <li><a href="#">Beranda</a></li>
+                    <li><a href="#hero">Beranda</a></li>
                     <li><a href="#products">Produk</a></li>
-                    <li><a href="#">Cara Beli</a></li>
+                    <li><a href="#how-it-works">Cara Beli</a></li>
                     <li><a href="#testimonials">Testimoni</a></li>
-                    <li><a href="#">Kontak</a></li>
+                    <li><a href="#footer">Kontak</a></li>
                 </ul>
             </nav>
+
             <div class="header-actions">
-                <div class="search-icon">🔍</div>
-                <div class="cart-icon" id="cartIcon">🛒</div>
-                    <div id="profileIcon" style="margin-left:20px; cursor:pointer;">
-                 <img id="headerAvatar" 
-                       src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM19VBNETVqcLJcoO6pq6cSz6JHrCzJfkb3g&s" 
-                       alt="Profil Pengguna" 
-                       style="width:38px;height:38px;border-radius:50%;border:2px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.07);background:#fff;">
-                </div>
-                    <button id="logoutBtn" class="btn btn-logout" style="margin-left:20px;">Logout</button>
-            </div>
-        </div>
+    <div class="search-container" style="position: relative;">
+        <span class="search-icon" id="searchIcon" style="cursor:pointer;">🔍</span>
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Cari produk..." 
+            style="display:none; position:absolute; top:30px; right:0; padding:8px 12px; border:1px solid #ccc; border-radius:6px; width:200px; z-index:1000;"
+        />
+    </div>
+
+    <div class="cart-icon" id="cartIcon" style="cursor:pointer; margin-left:15px;">🛒</div>
+
+    <div id="profileIcon" style="margin-left:20px; cursor:pointer;">
+        <img id="headerAvatar" 
+             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM19VBNETVqcLJcoO6pq6cSz6JHrCzJfkb3g&s" 
+             alt="Profil Pengguna" 
+             style="width:38px;height:38px;border-radius:50%;border:2px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.07);background:#fff;">
+    </div>
+    <button id="logoutBtn" class="btn btn-logout" style="margin-left:20px;">Logout</button>
+</div>
 
 <div id="profilePopup" class="profile-popup" style="display:none;">
   <div class="profile-popup-header">
@@ -53,7 +63,7 @@
     <button onclick="document.getElementById('profilePopup').style.display='none'" style="margin-top:10px;">Tutup</button>
 </div>
 
-    <section class="hero">
+ <section class="hero" id="hero">
         <div class="hero-content">
             <h1>Toko Akun Premium Terpercaya</h1>
             <p>Dapatkan akses premium ke berbagai platform digital dengan harga terjangkau. Transaksi aman, garansi 100%, dan layanan terbaik.</p>
@@ -61,7 +71,7 @@
         </div>
     </section>
 
-    <section class="features">
+     <section class="features" id="features">
         <h2 class="section-title">Mengapa Memilih Kami</h2>
         <div class="features-grid">
             <div class="feature-card">
@@ -83,13 +93,44 @@
     </section>
 
     <section class="products" id="products">
-        <h2 class="section-title">Produk Akun Premium</h2>
-        <div class="products-grid" id="productsGrid">
-            <p>Memuat produk yang disetujui Admin...</p>
-        </div>
-    </section>
+  <h2 class="section-title">Produk Akun Premium</h2>
+  <div class="products-grid" id="productsGrid">
+    
+    <div class="product-card">
+      <img src="img/spotify.jpg" alt="Spotify Premium" class="product-img">
+      <h3>Spotify Premium</h3>
+      <p>Harga: Rp25.000</p>
+      <div class="product-buttons">
+        <button class="btn add-to-cart" data-name="Spotify Premium" data-price="25000">🛒 Tambah ke Keranjang</button>
+        <button class="btn checkout-now" data-name="Spotify Premium" data-price="25000">💳 Checkout Sekarang</button>
+      </div>
+    </div>
 
-    <section class="how-it-works">
+    <div class="product-card">
+      <img src="img/netflix.jpg" alt="Netflix Premium" class="product-img">
+      <h3>Netflix Premium</h3>
+      <p>Harga: Rp40.000</p>
+      <div class="product-buttons">
+        <button class="btn add-to-cart" data-name="Netflix Premium" data-price="40000">🛒 Tambah ke Keranjang</button>
+        <button class="btn checkout-now" data-name="Netflix Premium" data-price="40000">💳 Checkout Sekarang</button>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <img src="img/youtube.jpg" alt="YouTube Premium" class="product-img">
+      <h3>YouTube Premium</h3>
+      <p>Harga: Rp30.000</p>
+      <div class="product-buttons">
+        <button class="btn add-to-cart" data-name="YouTube Premium" data-price="30000">🛒 Tambah ke Keranjang</button>
+        <button class="btn checkout-now" data-name="YouTube Premium" data-price="30000">💳 Checkout Sekarang</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+     <section class="how-it-works" id="how-it-works">
         <h2 class="section-title">Cara Pembelian</h2>
         <div class="steps">
             <div class="step">
@@ -134,13 +175,13 @@
         </div>
     </section>
 
-    <section class="cta">
+     <section class="cta" id="cta">
         <h2>Siap Nikmati Pengalaman Premium?</h2>
         <p>Bergabung dengan ribuan pelanggan yang telah merasakan manfaat akun premium dengan harga terjangkau.</p>
         <a href="#products" class="btn">Lihat Semua Produk</a>
     </section>
 
-    <footer>
+    <footer id="footer">
         <div class="footer-container">
             <div class="footer-section">
                 <div class="footer-logo">Akun<span>Premium</span></div>
@@ -188,6 +229,47 @@
 
     <script src="user.js"></script>
     <script>
+// ===========================
+// 🛒 SISTEM KERANJANG SEDERHANA
+// ===========================
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+// Tambah ke keranjang
+document.querySelectorAll(".add-to-cart").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const name = btn.dataset.name;
+    const price = parseInt(btn.dataset.price);
+    const existing = cart.find(item => item.name === name);
+    
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ name, price, qty: 1 });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${name} ditambahkan ke keranjang!`);
+  });
+});
+
+// Checkout langsung
+document.querySelectorAll(".checkout-now").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const name = btn.dataset.name;
+    const price = btn.dataset.price;
+    localStorage.setItem('checkoutItem', JSON.stringify({ name, price }));
+    window.location.href = 'checkout.html';
+  });
+});
+
+// Klik ikon keranjang di header
+document.getElementById("cartIcon").addEventListener("click", () => {
+  window.location.href = "cart.html";
+});
+</script>
+
+    <script>
+        
 document.getElementById('logoutBtn')?.addEventListener('click', function() {
     fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/logout_process.php')
         .then(r => r.json())
@@ -223,6 +305,66 @@ document.getElementById('profileIcon')?.addEventListener('click', function(e) {
 });
 </script>
 
+    // 🔍 Fitur pencarian toggle
+document.getElementById("searchIcon").addEventListener("click", () => {
+    const input = document.getElementById("searchInput");
+    input.style.display = input.style.display === "none" ? "block" : "none";
+    input.focus();
+});
+
+// 🔍 Tekan Enter untuk cari
+document.getElementById("searchInput").addEventListener("keyup", (e) => {
+    if (e.key === "Enter") {
+        const query = e.target.value.trim();
+        if (query) {
+            alert(`Mencari produk: ${query}`);
+        }
+    }
+});
+
+// 🛒 Klik ikon keranjang
+document.getElementById("cartIcon").addEventListener("click", () => {
+    alert("Membuka halaman keranjang...");
+    window.location.href = "cart.html"; // ubah ke nama file keranjangmu
+});
+
+<script>
+// ===========================
+// 🛒 FITUR TAMBAH KE KERANJANG
+// ===========================
+const addToCartButtons = document.querySelectorAll(".add-to-cart");
+
+addToCartButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const name = button.getAttribute("data-name");
+    const price = parseInt(button.getAttribute("data-price"));
     
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const existing = cart.find(item => item.name === name);
+
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ name, price, qty: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert(`${name} berhasil ditambahkan ke keranjang 🛒`);
+  });
+});
+
+const checkoutButtons = document.querySelectorAll(".checkout-now");
+checkoutButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const name = button.getAttribute("data-name");
+    const price = parseInt(button.getAttribute("data-price"));
+
+    localStorage.setItem("checkoutItem", JSON.stringify({ name, price, qty: 1 }));
+    window.location.href = "checkout.html";
+  });
+});
+</script>
+
 </body>
 </html>
+

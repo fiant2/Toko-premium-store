@@ -1,0 +1,34 @@
+<?php
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+
+// Koneksi ke database (gunakan database kamu sendiri)
+$conn = new mysqli("localhost", "root", "", "premium_store");
+
+// Kalau gagal koneksi, tampilkan error
+if ($conn->connect_error) {
+    die(json_encode(["success" => false, "message" => "Koneksi gagal: " . $conn->connect_error]));
+}
+
+// Ambil data dari form (dikirim lewat JavaScript)
+$user_name = $_POST['user_name'] ?? '';
+$product_id = $_POST['product_id'] ?? '';
+$comment = $_POST['comment'] ?? '';
+
+// Validasi input
+if (empty($user_name) || empty($product_id) || empty($comment)) {
+    echo json_encode(["success" => false, "message" => "Semua field wajib diisi."]);
+    exit;
+}
+
+// Simpan ke tabel reviews (status otomatis pending)
+$stmt = $conn->prepare("INSERT INTO reviews (product_id, user_name, comment, status) VALUES (?, ?, ?, 'pending')");
+$stmt->bind_param("iss", $product_id, $user_name, $comment);
+$stmt->execute();
+
+// Balasan ke browser
+echo json_encode(["success" => true, "message" => "Ulasan dikirim dan menunggu persetujuan admin."]);
+
+$stmt->close();
+$conn->close();
+?>
