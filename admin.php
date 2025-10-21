@@ -167,7 +167,7 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
                 <li><a href="#products-list"><span class="sidebar-menu-icon">📦</span> Produk</a></li>
                 <li><a href="#"><span class="sidebar-menu-icon">👥</span> Pelanggan</a></li>
                 <li><a href="#"><span class="sidebar-menu-icon">💰</span> Penjualan</a></li>
-                <li><a href="#"><span class="sidebar-menu-icon">⚙</span> Pengaturan</a></li>
+                
                 <li><a href="#"><span class="sidebar-menu-icon">🚪</span> Logout</a></li>
             </ul>
         </aside>
@@ -213,16 +213,14 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
     </div>
 </div>
                 
-    <div class="stat-card stat-link-overlay" id="statTotalCustomers" style="cursor:pointer;">
-    <div class="stat-card">
-        <div class="stat-header">
-            <div class="stat-title">Total Pelanggan</div>
-            <div class="stat-icon bg-orange">👥</div>
-        </div>
-        <div class="stat-value"><?php echo number_format($total_customers, 0, ',', '.'); ?></div>
-        <div class="stat-change <?php echo $growth_class; ?>">
-            <?php echo $growth_text; ?>
-        </div>
+<div class="stat-card stat-link-overlay" id="statTotalCustomers" style="cursor:pointer;">
+    <div class="stat-header">
+        <div class="stat-title">Total Pelanggan</div>
+        <div class="stat-icon bg-orange">👥</div>
+    </div>
+    <div class="stat-value"><?php echo number_format($total_customers, 0, ',', '.'); ?></div>
+    <div class="stat-change <?php echo $growth_class; ?>">
+            <?php echo $growth_text; ?>   
     </div>
 </div>
 </a>
@@ -237,7 +235,7 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
             </div>
             
 
-            <div class="card" id="orders-section">
+            <div class="card" id="orders-section" style="display:none">
     <div class="card-header">
         <h3 class="card-title">Pesanan Terbaru</h3>
         <span class="card-action" onclick="showSection('sales')">Lihat Semua Penjualan</span>
@@ -264,7 +262,7 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
     </div>
 </div>
 
-            <div class="card" id="products-list">
+            <div class="card" id="products-list" style="display:none">
                 <div class="card-header">
                     <h3 class="card-title">Kelola Produk</h3>
                     <span class="card-action" id="addProductBtn">Tambah Produk</span>
@@ -276,7 +274,7 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
                 </div>
             </div>
 
-            <div class="card" id="reviews-pending">
+            <div class="card" id="reviews-pending" style="display:none">
                 <div class="card-header">
                     <h3 class="card-title">Ulasan Menunggu Persetujuan</h3>
                 </div>
