@@ -32,7 +32,10 @@
         />
     </div>
 
-    <div class="cart-icon" id="cartIcon" style="cursor:pointer; margin-left:15px;">🛒</div>
+    <div class="cart-icon" id="cartIcon" style="cursor:pointer; margin-left:15px; position: relative;">
+    🛒
+    <span id="cartCount" style="position: absolute; top: -5px; right: -10px; background-color: #ff0070; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; line-height: 1;">0</span>
+</div>
 
     <div id="profileIcon" style="margin-left:20px; cursor:pointer;">
         <img id="headerAvatar" 
@@ -97,36 +100,45 @@
   <div class="products-grid" id="productsGrid">
     
     <div class="product-card">
-      <img src="img/spotify.jpg" alt="Spotify Premium" class="product-img">
-      <h3>Spotify Premium</h3>
-      <p>Harga: Rp25.000</p>
-      <div class="product-buttons">
-        <button class="btn add-to-cart" data-name="Spotify Premium" data-price="25000">🛒 Tambah ke Keranjang</button>
-        <button class="btn checkout-now" data-name="Spotify Premium" data-price="25000">💳 Checkout Sekarang</button>
-      </div>
+        <img src="img/youtube.jpg" alt="YouTube Premium" class="product-img">
+        <h3>YouTube Premium</h3>
+        <p>Harga: Rp30.000</p>
+        <div class="product-buttons" style="display: flex; gap: 10px;">
+            <button class="btn add-to-cart-standalone" data-name="YouTube Premium" data-price="30000" style="background-color: #555; color: white; flex-grow: 1; padding: 10px;">🛒 Tambah</button>
+            <button class="btn checkout-now" data-name="YouTube Premium" data-price="30000" style="flex-grow: 1; padding: 10px;">💳 Beli Sekarang</button>
+        </div>
     </div>
-
+    
     <div class="product-card">
-      <img src="img/netflix.jpg" alt="Netflix Premium" class="product-img">
-      <h3>Netflix Premium</h3>
-      <p>Harga: Rp40.000</p>
-      <div class="product-buttons">
-        <button class="btn add-to-cart" data-name="Netflix Premium" data-price="40000">🛒 Tambah ke Keranjang</button>
-        <button class="btn checkout-now" data-name="Netflix Premium" data-price="40000">💳 Checkout Sekarang</button>
-      </div>
+        <img src="img/viu.jpg" alt="Viu Premium" class="product-img"> 
+        <h3>Viu Premium</h3>
+        <p>Harga: Rp35.000</p>
+        <div class="product-buttons" style="display: flex; gap: 10px;">
+            <button class="btn add-to-cart-standalone" data-name="Viu Premium" data-price="35000" style="background-color: #555; color: white; flex-grow: 1; padding: 10px;">🛒 Tambah</button>
+            <button class="btn checkout-now" data-name="Viu Premium" data-price="35000" style="flex-grow: 1; padding: 10px;">💳 Beli Sekarang</button>
+        </div>
     </div>
-
+    
     <div class="product-card">
-      <img src="img/youtube.jpg" alt="YouTube Premium" class="product-img">
-      <h3>YouTube Premium</h3>
-      <p>Harga: Rp30.000</p>
-      <div class="product-buttons">
-        <button class="btn add-to-cart" data-name="YouTube Premium" data-price="30000">🛒 Tambah ke Keranjang</button>
-        <button class="btn checkout-now" data-name="YouTube Premium" data-price="30000">💳 Checkout Sekarang</button>
-      </div>
+        <img src="img/spotify.jpg" alt="Spotify Premium" class="product-img">
+        <h3>Spotify Premium</h3>
+        <p>Harga: Rp25.000</p>
+        <div class="product-buttons" style="display: flex; gap: 10px;">
+            <button class="btn add-to-cart-standalone" data-name="Spotify Premium" data-price="25000" style="background-color: #555; color: white; flex-grow: 1; padding: 10px;">🛒 Tambah</button>
+            <button class="btn checkout-now" data-name="Spotify Premium" data-price="25000" style="flex-grow: 1; padding: 10px;">💳 Beli Sekarang</button>
+        </div>
     </div>
-
-  </div>
+    
+    <div class="product-card" data-name="Disney+ Hotstar">
+        <img src="img/disney.jpg" alt="Disney+ Hotstar Premium" class="product-img">
+        <h3>Disney+ Hotstar Premium</h3>
+        <p>Harga: Rp55.000</p>
+        <div class="product-buttons" style="display: flex; gap: 10px;">
+            <button class="btn add-to-cart-standalone" data-name="Disney+ Hotstar Premium" data-price="55000" style="background-color: #555; color: white; flex-grow: 1; padding: 10px;">🛒 Tambah</button>
+            <button class="btn checkout-now" data-name="Disney+ Hotstar Premium" data-price="55000" style="flex-grow: 1; padding: 10px;">💳 Beli Sekarang</button>
+        </div>
+    </div>
+</div>
 </section>
 
 
@@ -227,144 +239,144 @@
         </div>
     </footer>
 
-    <script src="user.js"></script>
+<script src="user.js"></script>
     <script>
-// ===========================
-// 🛒 SISTEM KERANJANG SEDERHANA
-// ===========================
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    // ===================================
+    // 1. DATA APLIKASI (untuk Pencarian Lokal)
+    // ===================================
+    const productsData = [
+        { name: "Spotify Premium", price: 25000, section: "Produk", target: "#products" },
+        { name: "Netflix Premium", price: 40000, section: "Produk", target: "#products" }, 
+        { name: "YouTube Premium", price: 30000, section: "Produk", target: "#products" },
+        { name: "Viu Premium", price: 35000, section: "Produk", target: "#products" },
+        { name: "Disney+ Hotstar Premium", price: 55000, section: "Produk", target: "#products" },
+        { name: "Cara Beli", section: "Bantuan", target: "#how-it-works" },
+        { name: "Cara Pembelian", section: "Bantuan", target: "#how-it-works" },
+        { name: "FAQ", section: "Bantuan", target: "#footer" },
+        { name: "Testimoni", section: "Konten Utama", target: "#testimonials" },
+        { name: "Kontak", section: "Kontak", target: "#footer" },
+    ];
 
-// Tambah ke keranjang
-document.querySelectorAll(".add-to-cart").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const name = btn.dataset.name;
-    const price = parseInt(btn.dataset.price);
-    const existing = cart.find(item => item.name === name);
-    
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({ name, price, qty: 1 });
+    // ===================================
+    // 2. 🛒 SISTEM KERANJANG & HITUNGAN
+    // ===================================
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartCountElement = document.getElementById("cartCount");
+
+    function updateCartCount() {
+        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+        cartCountElement.textContent = totalItems;
+        // Tampilkan hitungan jika lebih dari 0
+        cartCountElement.style.display = totalItems > 0 ? 'inline' : 'none'; 
     }
 
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert(`${name} ditambahkan ke keranjang!`);
-  });
-});
+    updateCartCount();
 
-// Checkout langsung
-document.querySelectorAll(".checkout-now").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const name = btn.dataset.name;
-    const price = btn.dataset.price;
-    localStorage.setItem('checkoutItem', JSON.stringify({ name, price }));
-    window.location.href = 'checkout.html';
-  });
-});
+    // Pilih semua tombol keranjang
+    document.querySelectorAll(".add-to-cart, .add-to-cart-standalone").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const name = btn.dataset.name;
+            const price = parseInt(btn.dataset.price);
+            const existing = cart.find(item => item.name === name);
+            
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ name, price, qty: 1 });
+            }
 
-// Klik ikon keranjang di header
-document.getElementById("cartIcon").addEventListener("click", () => {
-  window.location.href = "cart.html";
-});
-</script>
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            alert(`${name} ditambahkan ke keranjang!`);
+        });
+    });
 
-    <script>
-        
-document.getElementById('logoutBtn')?.addEventListener('click', function() {
-    fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/logout_process.php')
+    // Checkout langsung (Tombol Beli Sekarang)
+    document.querySelectorAll(".checkout-now").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const name = btn.dataset.name;
+            const price = btn.dataset.price;
+            localStorage.setItem('checkoutItem', JSON.stringify({ name, price, qty: 1 }));
+            window.location.href = 'checkout.html';
+        });
+    });
+
+    // Klik ikon keranjang di header
+    document.getElementById("cartIcon").addEventListener("click", () => {
+        window.location.href = "cart.html";
+    });
+
+    // ===================================
+    // 3. 🔍 FITUR PENCARIAN
+    // ===================================
+    const searchIcon = document.getElementById("searchIcon");
+    const searchInput = document.getElementById("searchInput");
+
+    searchIcon.addEventListener("click", () => {
+        searchInput.style.display = searchInput.style.display === "none" ? "block" : "none";
+        if (searchInput.style.display === "block") {
+            searchInput.focus();
+        }
+    });
+
+    searchInput.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+            const query = e.target.value.trim().toLowerCase();
+            if (query) {
+                const results = productsData.filter(item => 
+                    item.name.toLowerCase().includes(query)
+                );
+
+                if (results.length > 0) {
+                    const firstResult = results[0];
+                    alert(`Menemukan: ${firstResult.name}. Mengarahkan Anda ke bagian terkait.`);
+                    window.location.href = firstResult.target; 
+                    searchInput.value = "";
+                    searchInput.style.display = "none";
+                } else {
+                    alert(`Tidak ada hasil yang ditemukan untuk: "${query}"`);
+                }
+            }
+        }
+    });
+
+    // ===================================
+    // 4. LOGIKA PROFIL / LOGOUT
+    // ===================================
+    let userProfileData = null;
+
+    document.getElementById('logoutBtn')?.addEventListener('click', function() {
+        fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/logout_process.php')
+            .then(r => r.json())
+            .then(data => {
+                alert('Logout berhasil!');
+                localStorage.removeItem('cart'); 
+                window.location.href = 'loginuser.html';
+            })
+            .catch(() => {
+                alert('Gagal logout. Silakan coba lagi.');
+            });
+    });
+
+    fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/check_session.php')
         .then(r => r.json())
         .then(data => {
-            alert('Logout berhasil!');
-            window.location.href = 'loginuser.html';
-        })
-        .catch(() => {
-            alert('Gagal logout. Silakan coba lagi.');
+            if (data.logged_in) {
+                userProfileData = data;
+                document.getElementById('popupProfileName').textContent = data.user_name || 'Pengguna Akun Premium';
+                document.getElementById('popupProfileEmail').textContent = data.user_email || 'email@example.com';
+            }
         });
-});
 
-let userProfileData = null;
-fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/check_session.php')
-  .then(r => r.json())
-  .then(data => {
-    if (!data.logged_in) {
-      alert('Silakan login terlebih dahulu!');
-      window.location.href = 'loginuser.html';
-    } else {
-      userProfileData = data;
-    }
-  });
-
-document.getElementById('profileIcon')?.addEventListener('click', function(e) {
-    if (userProfileData) {
-        document.getElementById('popupProfileName').textContent = userProfileData.user_name;
-        document.getElementById('popupProfileEmail').textContent = userProfileData.user_email;
-        // Avatar dinamis berdasarkan nama/email
-        document.getElementById('popupAvatar').src = `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM19VBNETVqcLJcoO6pq6cSz6JHrCzJfkb3g&s{encodeURIComponent(userProfileData.user_name||'user')}`;
-        document.getElementById('profilePopup').style.display = 'block';
-    }
-});
-</script>
-
-    // 🔍 Fitur pencarian toggle
-document.getElementById("searchIcon").addEventListener("click", () => {
-    const input = document.getElementById("searchInput");
-    input.style.display = input.style.display === "none" ? "block" : "none";
-    input.focus();
-});
-
-// 🔍 Tekan Enter untuk cari
-document.getElementById("searchInput").addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
-        const query = e.target.value.trim();
-        if (query) {
-            alert(`Mencari produk: ${query}`);
+    document.getElementById('profileIcon')?.addEventListener('click', function(e) {
+        const popup = document.getElementById('profilePopup');
+        if (userProfileData) {
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        } else {
+            alert('Anda belum login.');
         }
-    }
-});
-
-// 🛒 Klik ikon keranjang
-document.getElementById("cartIcon").addEventListener("click", () => {
-    alert("Membuka halaman keranjang...");
-    window.location.href = "cart.html"; // ubah ke nama file keranjangmu
-});
-
-<script>
-// ===========================
-// 🛒 FITUR TAMBAH KE KERANJANG
-// ===========================
-const addToCartButtons = document.querySelectorAll(".add-to-cart");
-
-addToCartButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const name = button.getAttribute("data-name");
-    const price = parseInt(button.getAttribute("data-price"));
-    
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existing = cart.find(item => item.name === name);
-
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({ name, price, qty: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert(`${name} berhasil ditambahkan ke keranjang 🛒`);
-  });
-});
-
-const checkoutButtons = document.querySelectorAll(".checkout-now");
-checkoutButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const name = button.getAttribute("data-name");
-    const price = parseInt(button.getAttribute("data-price"));
-
-    localStorage.setItem("checkoutItem", JSON.stringify({ name, price, qty: 1 }));
-    window.location.href = "checkout.html";
-  });
-});
-</script>
-
+    });
+    </script>
 </body>
 </html>
 
