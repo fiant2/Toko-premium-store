@@ -4,7 +4,7 @@
 // 1. Panggil file koneksi database
 require_once 'api_store/api_storeapi/db_config.php';
 
-// --- A. Hitung Total Pelanggan Keseluruhan ---
+                    // --- A. Hitung Total Pelanggan Keseluruhan ---
 $total_customers = 0;
 $sql_total = "SELECT COUNT(id) AS total FROM customers";
 if ($result_total = $conn->query($sql_total)) {
@@ -13,9 +13,9 @@ if ($result_total = $conn->query($sql_total)) {
     $result_total->free();
 }
 
-// --- B. Hitung Pertumbuhan (Pelanggan Bulan Ini vs Bulan Lalu) ---
+//Hitung Pertumbuhan (Pelanggan Bulan Ini vs Bulan Lalu) ---
 
-// 2. Hitung pelanggan yang bergabung **Bulan Ini (M-0)**
+//Hitung pelanggan yang bergabung **Bulan Ini (M-0)**
 $start_of_current_month = date('Y-m-01 00:00:00');
 $customers_this_month = 0;
 
@@ -27,7 +27,7 @@ if ($result_this_month = $conn->query($sql_this_month)) {
     $result_this_month->free();
 }
 
-// 3. Hitung pelanggan yang bergabung **Bulan Lalu (M-1)**
+//Hitung pelanggan yang bergabung **Bulan Lalu (M-1)**
 $start_of_last_month = date('Y-m-01 00:00:00', strtotime('last month'));
 $end_of_last_month = date('Y-m-t 23:59:59', strtotime('last month'));
 
@@ -40,7 +40,7 @@ if ($result_last_month = $conn->query($sql_last_month)) {
     $result_last_month->free();
 }
 
-// --- C. Perhitungan Persentase Perubahan ---
+//Perhitungan Persentase Perubahan ---
 $percentage_change = 0;
 $growth_status = 'neutral'; 
 $growth_text = '0.0% dari bulan lalu';
@@ -62,7 +62,7 @@ if ($percentage_change > 0) {
     $growth_text = '-' . $formatted_percentage . ' dari bulan lalu';
 } 
 
-// --- Hitung Total Pesanan dari Tabel Sales ---
+                    // --- B. Hitung Total Pesanan dari Tabel Sales ---
 $total_orders = 0;
 $sql_orders = "SELECT COUNT(id) AS total_orders FROM sales";
 if ($result_orders = $conn->query($sql_orders)) {
@@ -100,7 +100,7 @@ $orders_formatted_percentage = number_format(abs($orders_percentage_change), 1) 
 $orders_growth_status = $orders_percentage_change > 0 ? 'positive' : ($orders_percentage_change < 0 ? 'negative' : 'neutral');
 $orders_growth_text = $orders_percentage_change > 0 ? '+' . $orders_formatted_percentage . ' dari bulan lalu' : ($orders_percentage_change < 0 ? '-' . $orders_formatted_percentage . ' dari bulan lalu' : '0.0% dari bulan lalu');
 
-// --- Hitung Total Pendapatan dari Tabel Sales ---
+                    // --- C. Hitung Total Pendapatan dari Tabel Sales ---
 $total_revenue = 0;
 $sql_revenue = "SELECT SUM(total) AS total_revenue FROM sales WHERE status = 'completed'";
 if ($result_revenue = $conn->query($sql_revenue)) {
@@ -142,7 +142,7 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
                        ($revenue_percentage_change < 0 ? '-' . $revenue_formatted_percentage . ' dari bulan lalu' : '0.0% dari bulan lalu');
 
 
-// --- Hitung Produk Terjual (status completed) ---
+                    // --- D. Hitung Produk Terjual (status completed) ---
 $total_sold_products = 0;
 $sql_sold = "SELECT COUNT(id) AS total_sold FROM sales WHERE status = 'completed'";
 if ($result_sold = $conn->query($sql_sold)) {

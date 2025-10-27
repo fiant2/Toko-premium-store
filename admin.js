@@ -508,7 +508,7 @@ function showSection(name) {
 
     if (name === 'dashboard') {
         sectionsMap.dashboard.style.display = 'grid';
-        
+
     } else if (name === 'orders') {
         if (sectionsMap.orders) sectionsMap.orders.style.display = 'block';
         loadOrders();  // Load data saat section orders dibuka
@@ -839,6 +839,7 @@ document.getElementById('statProductsSold')?.addEventListener('click', function(
     if (penjualanMenu) penjualanMenu.classList.add('active');
     showSection('sales');
 });
+
 
 
     // --- Panggil Fungsi Utama ---
