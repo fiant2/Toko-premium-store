@@ -102,7 +102,7 @@ $orders_growth_text = $orders_percentage_change > 0 ? '+' . $orders_formatted_pe
 
 // --- Hitung Total Pendapatan dari Tabel Sales ---
 $total_revenue = 0;
-$sql_revenue = "SELECT SUM(total) AS total_revenue FROM sales";
+$sql_revenue = "SELECT SUM(total) AS total_revenue FROM sales WHERE status = 'completed'";
 if ($result_revenue = $conn->query($sql_revenue)) {
     $row_revenue = $result_revenue->fetch_assoc();
     $total_revenue = $row_revenue['total_revenue'] ? $row_revenue['total_revenue'] : 0;
@@ -112,7 +112,7 @@ if ($result_revenue = $conn->query($sql_revenue)) {
 // --- Hitung Pertumbuhan Pendapatan (Bulan Ini vs Bulan Lalu) ---
 $start_of_current_month = date('Y-m-01 00:00:00');
 $revenue_this_month = 0;
-$sql_this_month = "SELECT SUM(total) AS revenue_this_month FROM sales WHERE created_at >= '$start_of_current_month'";
+$sql_this_month = "SELECT SUM(total) AS revenue_this_month FROM sales WHERE status = 'completed' and created_at >= '$start_of_current_month'";
 if ($result_this_month = $conn->query($sql_this_month)) {
     $row_this_month = $result_this_month->fetch_assoc();
     $revenue_this_month = $row_this_month['revenue_this_month'] ? $row_this_month['revenue_this_month'] : 0;
@@ -122,7 +122,7 @@ if ($result_this_month = $conn->query($sql_this_month)) {
 $start_of_last_month = date('Y-m-01 00:00:00', strtotime('last month'));
 $end_of_last_month = date('Y-m-t 23:59:59', strtotime('last month'));
 $revenue_last_month = 0;
-$sql_last_month = "SELECT SUM(total) AS revenue_last_month FROM sales WHERE created_at BETWEEN '$start_of_last_month' AND '$end_of_last_month'";
+$sql_last_month = "SELECT SUM(total) AS revenue_last_month FROM sales WHERE status = 'completed' and created_at BETWEEN '$start_of_last_month' AND '$end_of_last_month'";
 if ($result_last_month = $conn->query($sql_last_month)) {
     $row_last_month = $result_last_month->fetch_assoc();
     $revenue_last_month = $row_last_month['revenue_last_month'] ? $row_last_month['revenue_last_month'] : 0;
