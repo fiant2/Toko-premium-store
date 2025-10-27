@@ -840,7 +840,22 @@ document.getElementById('statProductsSold')?.addEventListener('click', function(
     showSection('sales');
 });
 
-
+// Event listener untuk tombol 'Lihat Semua Penjualan' di Dashboard
+document.getElementById('viewAllSalesBtn')?.addEventListener('click', function(e) {
+    // Mencegah browser berpindah halaman atau me-refresh
+    e.preventDefault(); 
+    
+    // 1. Hapus status 'active' dari semua menu sidebar
+    document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+    
+    // 2. Cari menu sidebar "Penjualan" dan berikan class 'active'
+    // Ini penting agar pengguna tahu di menu mana dia berada
+    const penjualanMenu = Array.from(document.querySelectorAll('.sidebar-menu a')).find(a => a.textContent.toLowerCase().includes('penjualan'));
+    if (penjualanMenu) penjualanMenu.classList.add('active');
+    
+    // 3. Tampilkan section penjualan
+    showSection('sales');
+});
 
     // --- Panggil Fungsi Utama ---
     loadAdminProducts(); 

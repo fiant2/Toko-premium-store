@@ -322,7 +322,7 @@ $sold_growth_text = $sold_percentage_change > 0 ? '+' . $sold_formatted_percenta
             <div class="card" id="orders-section" style="display:none">
     <div class="card-header">
         <h3 class="card-title">Pesanan Terbaru</h3>
-        <span class="card-action" onclick="showSection('sales')">Lihat Semua Penjualan</span>
+        <span class="card-action"id="viewAllSalesBtn">Lihat Semua Penjualan</span> 
     </div>
     <div class="card-body">
         <table class="table">
