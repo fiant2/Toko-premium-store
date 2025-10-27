@@ -60,9 +60,7 @@ if ($percentage_change > 0) {
 } elseif ($percentage_change < 0) {
     $growth_status = 'down'; // Class CSS untuk tren turun (biasanya merah)
     $growth_text = '-' . $formatted_percentage . ' dari bulan lalu';
-} ?>
-
-<?php
+} 
 
 // --- Hitung Total Pesanan dari Tabel Sales ---
 $total_orders = 0;
@@ -143,6 +141,48 @@ $revenue_growth_status = $revenue_percentage_change > 0 ? 'positive' : ($revenue
 $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted_percentage . ' dari bulan lalu' : 
                        ($revenue_percentage_change < 0 ? '-' . $revenue_formatted_percentage . ' dari bulan lalu' : '0.0% dari bulan lalu');
 
+
+// --- Hitung Produk Terjual (status completed) ---
+$total_sold_products = 0;
+$sql_sold = "SELECT COUNT(id) AS total_sold FROM sales WHERE status = 'completed'";
+if ($result_sold = $conn->query($sql_sold)) {
+    $row_sold = $result_sold->fetch_assoc();
+    $total_sold_products = $row_sold['total_sold'];
+    $result_sold->free();
+}
+
+// Hitung pertumbuhan dari bulan lalu
+$sold_this_month = 0;
+$sql_sold_this = "SELECT COUNT(id) AS sold_this FROM sales 
+                  WHERE status = 'completed' 
+                  AND created_at >= '$start_of_current_month'";
+if ($res_this = $conn->query($sql_sold_this)) {
+    $row = $res_this->fetch_assoc();
+    $sold_this_month = $row['sold_this'];
+    $res_this->free();
+}
+
+$sold_last_month = 0;
+$sql_sold_last = "SELECT COUNT(id) AS sold_last FROM sales 
+                  WHERE status = 'completed' 
+                  AND created_at BETWEEN '$start_of_last_month' AND '$end_of_last_month'";
+if ($res_last = $conn->query($sql_sold_last)) {
+    $row = $res_last->fetch_assoc();
+    $sold_last_month = $row['sold_last'];
+    $res_last->free();
+}
+
+$sold_percentage_change = 0;
+if ($sold_last_month > 0) {
+    $sold_percentage_change = (($sold_this_month - $sold_last_month) / $sold_last_month) * 100;
+} elseif ($sold_this_month > 0) {
+    $sold_percentage_change = 100;
+}
+$sold_formatted_percentage = number_format(abs($sold_percentage_change), 1) . '%';
+$sold_growth_status = $sold_percentage_change > 0 ? 'positive' : ($sold_percentage_change < 0 ? 'negative' : 'neutral');
+$sold_growth_text = $sold_percentage_change > 0 ? '+' . $sold_formatted_percentage . ' dari bulan lalu' : 
+                    ($sold_percentage_change < 0 ? '-' . $sold_formatted_percentage . ' dari bulan lalu' : '0.0% dari bulan lalu');
+
 ?>
 
 
@@ -219,20 +259,64 @@ $revenue_growth_text = $revenue_percentage_change > 0 ? '+' . $revenue_formatted
         <div class="stat-icon bg-orange">👥</div>
     </div>
     <div class="stat-value"><?php echo number_format($total_customers, 0, ',', '.'); ?></div>
-    <div class="stat-change <?php echo $growth_class; ?>">
+    <div class="stat-change <?php echo $growth_status; ?>">
             <?php echo $growth_text; ?>   
     </div>
 </div>
-</a>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-title">Produk Terjual</div>
-                        <div class="stat-icon bg-purple">📦</div>
-                    </div>
-                    <div class="stat-value">415</div>
-                    <div class="stat-change positive">+10.3% dari bulan lalu</div>
-                </div>
+<div class="stat-card stat-link-overlay" id="statProductsSold" style="cursor:pointer;">
+    <div class="stat-header">
+        <div class="stat-title">Produk Terjual</div>
+        <div class="stat-icon bg-purple">📦</div>
+    </div>
+    <div class="stat-value">
+        <?php 
+        $total_sold = 0;
+        $sql_sold = "SELECT COUNT(id) AS total_sold FROM sales WHERE status='completed'";
+        if ($result_sold = $conn->query($sql_sold)) {
+            $row_sold = $result_sold->fetch_assoc();
+            $total_sold = $row_sold['total_sold'] ?? 0;
+            $result_sold->free();
+        }
+
+        $sold_this_month = 0;
+        $sql_sold_this = "SELECT COUNT(id) AS total_this 
+                          FROM sales 
+                          WHERE status='completed' 
+                          AND created_at >= '$start_of_current_month'";
+        if ($r = $conn->query($sql_sold_this)) {
+            $sold_this_month = ($r->fetch_assoc())['total_this'] ?? 0;
+            $r->free();
+        }
+
+        $sold_last_month = 0;
+        $sql_sold_last = "SELECT COUNT(id) AS total_last 
+                          FROM sales 
+                          WHERE status='completed' 
+                          AND created_at BETWEEN '$start_of_last_month' AND '$end_of_last_month'";
+        if ($r = $conn->query($sql_sold_last)) {
+            $sold_last_month = ($r->fetch_assoc())['total_last'] ?? 0;
+            $r->free();
+        }
+
+        $sold_change = 0;
+        if ($sold_last_month > 0) {
+            $sold_change = (($sold_this_month - $sold_last_month) / $sold_last_month) * 100;
+        } elseif ($sold_this_month > 0) {
+            $sold_change = 100;
+        }
+
+        $sold_growth_status = $sold_change >= 0 ? 'positive' : 'negative';
+        $sold_growth_text = ($sold_change >= 0 ? '+' : '-') . number_format(abs($sold_change), 1) . '% dari bulan lalu';
+
+        echo number_format($total_sold, 0, ',', '.');
+        ?>
+    </div>
+    <div class="stat-change <?= $sold_growth_status; ?>">
+        <?= $sold_growth_text; ?>
+    </div>
+</div>
             </div>
+
             
 
             <div class="card" id="orders-section" style="display:none">

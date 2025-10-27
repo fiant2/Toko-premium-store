@@ -508,8 +508,7 @@ function showSection(name) {
 
     if (name === 'dashboard') {
         sectionsMap.dashboard.style.display = 'grid';
-        if (sectionsMap.orders) sectionsMap.orders.style.display = 'block';
-        loadOrders();  // Load data saat dashboard dibuka
+        
     } else if (name === 'orders') {
         if (sectionsMap.orders) sectionsMap.orders.style.display = 'block';
         loadOrders();  // Load data saat section orders dibuka
@@ -833,8 +832,17 @@ document.getElementById('statTotalRevenue')?.addEventListener('click', function(
     showSection('sales');
 });
 
+// Event listener untuk Produk Terjual agar buka section penjualan
+document.getElementById('statProductsSold')?.addEventListener('click', function() {
+    document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+    const penjualanMenu = Array.from(document.querySelectorAll('.sidebar-menu a')).find(a => a.textContent.toLowerCase().includes('penjualan'));
+    if (penjualanMenu) penjualanMenu.classList.add('active');
+    showSection('sales');
+});
+
+
     // --- Panggil Fungsi Utama ---
     loadAdminProducts(); 
     loadPendingReviews(); 
-    loadOrders();
+    
 });
