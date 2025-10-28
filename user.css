@@ -539,6 +539,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            color: #ffff
         }
         
         .social-link:hover {
@@ -680,4 +681,58 @@
 .profile-icon img:hover {
   box-shadow: 0 4px 16px rgba(248,87,166,0.13);
   border-color: #f857a6;
+}
+
+/* ================================================= */
+/* === STYLING UNTUK JUDUL SECTION (H2 & DESKRIPSI) */
+/* ================================================= */
+
+/* Styling untuk seluruh section, memastikan padding luar konsisten */
+.content-section {
+    padding: 60px 20px;
+    text-align: center; /* Memastikan semua isi section berada di tengah */
+}
+
+/* Styling untuk Judul Utama Section (H2) */
+.content-section h2 {
+    font-size: 2.5em; /* Ukuran judul */
+    color: #333;
+    margin-bottom: 0.5em; /* Jarak bawah yang rapi */
+    border-bottom: 3px solid #ff5050; /* Garis bawah dekoratif */
+    display: inline-block; /* Agar garis bawah hanya sepanjang teks */
+    padding-bottom: 10px; /* Jarak antara teks dan garis bawah */
+}
+
+/* Styling untuk Paragraf Deskripsi (P) */
+.section-description {
+    max-width: 700px; /* Batasi lebar teks agar mudah dibaca */
+    margin: 0 auto 40px auto; /* Tengah, dengan jarak bawah yang rapi */
+    color: #666; /* Warna teks yang lembut */
+    line-height: 1.6; /* Jarak baris agar nyaman dibaca */
+}
+
+/* ================================================= */
+/* === PERBAIKAN PADDING CSS YANG SUDAH ADA === */
+/* ================================================= */
+
+/* Anda sebelumnya memiliki padding 6rem (terlalu besar). 
+   Ganti kode di bawah ini di user.css dengan padding yang lebih kecil: */
+.terms-container {
+    /* padding: 6rem 5%; <--- Hapus atau ganti */
+    padding: 30px; /* Padding yang lebih wajar */
+    background: linear-gradient(135deg, #FFD5D5 0%, #ffcbcb 100%);
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Perbaiki juga FAQ Question jika paddingnya terlalu besar */
+.faq-question {
+    /* padding: 6rem 5%; <--- Hapus atau ganti */
+    padding: 15px; /* Padding yang lebih wajar */
+    background: linear-gradient(135deg, #FFD5D5 0%, #ffcbcb 100%);
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 8px 8px 0 0;
 }

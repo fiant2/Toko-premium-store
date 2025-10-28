@@ -373,7 +373,7 @@ $sold_growth_text = $sold_percentage_change > 0 ? '+' . $sold_formatted_percenta
             <div class="card" id="customers-section" style="display:none;">
               <div class="card-header">
                 <h3 class="card-title">Daftar Pelanggan</h3>
-                <span class="card-action" id="addCustomerBtn">Tambah Pelanggan</span>
+                
               </div>
               <div class="card-body" id="customersBody">
                 <div class="table-wrapper">
@@ -395,7 +395,7 @@ $sold_growth_text = $sold_percentage_change > 0 ? '+' . $sold_formatted_percenta
             <div class="card" id="sales-section" style="display:none;">
               <div class="card-header">
                 <h3 class="card-title">Data Penjualan</h3>
-                <span class="card-action" id="addSaleBtn">Buat Order Manual</span>
+            
               </div>
               <div class="card-body" id="salesBody">
                 <table class="table" id="salesTable">
