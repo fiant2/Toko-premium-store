@@ -1,219 +1,177 @@
-// user.js - MENGGUNAKAN API PHP XAMPP
-document.addEventListener('DOMContentLoaded', function() {
-    async function checkOrderStatus() {
-  try {
-    const response = await fetch('check_order.php');
-    const data = await response.json();
-    const form = document.getElementById('reviewForm');
-    const notice = document.getElementById('reviewNotice');
 
-    if (!data.success) {
-      // Kalau belum checkout, sembunyikan form dan tampilkan pesan
-      form.style.display = 'none';
-      notice.style.display = 'block';
-    } else {
-      // Kalau sudah checkout, tampilkan form
-      form.style.display = 'block';
-      notice.style.display = 'none';
+document.addEventListener('DOMContentLoaded', function () {
+
+  // ========== CEK STATUS CHECKOUT ==========
+  async function checkOrderStatus() {
+    try {
+      const response = await fetch('check_order.php');
+      const data = await response.json();
+      const form = document.getElementById('reviewForm');
+      const notice = document.getElementById('reviewNotice');
+
+      if (!data.success) {
+        form && (form.style.display = 'none');
+        notice && (notice.style.display = 'block');
+      } else {
+        form && (form.style.display = 'block');
+        notice && (notice.style.display = 'none');
+      }
+    } catch (error) {
+      console.error('Gagal cek status checkout:', error);
     }
-  } catch (error) {
-    console.error('Gagal cek status checkout:', error);
   }
-}
+  checkOrderStatus();
 
-// Jalankan fungsi ini setelah halaman dimuat
-document.addEventListener('DOMContentLoaded', checkOrderStatus);
+  // ========== KONFIGURASI API ==========
+  const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
 
-    // GANTI KE ALAMAT API PHP ANDA
-const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
-    
-    // --- Helper Function: SIMULASI Get User ID ---
-    // ID 'USER-TEST-1' dianggap sudah memiliki pembelian di reviews.php!
-    function getLoggedInUserId() {
-        return 'USER-TEST-1'; 
-    }
-    
-    // --- 1. Load Produk yang Diterbitkan Admin (GET dari PHP) ---
-    function generateProductCardHTML(product) {
-        return `
-            <div class="product-card" data-product-id="${product.id}">
-                <div class="product-badge">${product.stock_status === 'in-stock' ? 'Tersedia' : 'Habis'}</div>
-                <div class="product-image">
-                    <img src="${product.image_url || 'https://via.placeholder.com/400x300'}" alt="${product.name}">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">${product.category || 'Streaming'}</div>
-                    <h3 class="product-name">${product.name}</h3>
-                    <p class="product-desc">${product.description.substring(0, 100)}...</p>
-                    <div class="product-price">Rp ${new Intl.NumberFormat('id-ID').format(product.price)}</div>
-                    <button class="add-to-cart" data-id="${product.id}">Beli Sekarang</button>
-                </div>
-            </div>
-        `;
-    }
-
-    function fetchAndRenderProducts() {
-        const productsGrid = document.getElementById('productsGrid');
-        if (!productsGrid) return;
-        
-        productsGrid.innerHTML = '<p>Memuat produk yang disetujui Admin...</p>';
-        
-        // GANTI: Menggunakan fetch GET dari products.php
-        fetch(`${API_BASE_URL}/products.php`)
-        .then(response => {
-            if (!response.ok) throw new Error('API Produk Gagal dimuat.');
-            return response.json();
-        })
-        .then(products => {
-            productsGrid.innerHTML = '';
-            if (products.length === 0) {
-                productsGrid.innerHTML = '<p>Maaf, belum ada produk yang tersedia saat ini.</p>';
-                return;
-            }
-            
-            products.forEach(product => {
-                productsGrid.insertAdjacentHTML('beforeend', generateProductCardHTML(product));
-            });
-            attachAddToCartListeners();
-        })
-        .catch(error => {
-            console.error('Error memuat produk:', error);
-            productsGrid.innerHTML = '<p class="text-danger">Produk gagal dimuat. Pastikan XAMPP Apache dan MySQL berjalan.</p>';
-        });
-    }
-
-    // Cek apakah user sudah pernah belanja
-async function checkOrderPermission() {
-  try {
-    const res = await fetch('check_order.php');
-    const data = await res.json();
-    const form = document.getElementById('reviewForm');
-    const msg = document.getElementById('reviewMsg');
-
-    if (!data.success) {
-      form.style.display = 'none';
-      msg.style.display = 'block';
-      msg.textContent = 'Anda hanya bisa menulis ulasan setelah menyelesaikan pembelian.';
-    } else {
-      form.style.display = 'block';
-      msg.style.display = 'none';
-    }
-  } catch (err) {
-    console.error(err);
+  function getLoggedInUserId() {
+    return 'USER-TEST-1';
   }
-}
 
-// Jalankan fungsi saat halaman dimuat
-checkOrderPermission();
+  // ========== LOAD PRODUK DARI API ==========
+  function generateProductCardHTML(product) {
+    return `
+      <div class="product-card" data-product-id="${product.id}">
+        <div class="product-badge">${product.stock_status === 'in-stock' ? 'Tersedia' : 'Habis'}</div>
+        <div class="product-image">
+          <img src="${product.image_url || 'https://via.placeholder.com/400x300'}" alt="${product.name}">
+        </div>
+        <div class="product-info">
+          <div class="product-category">${product.category || 'Streaming'}</div>
+          <h3 class="product-name">${product.name}</h3>
+          <p class="product-desc">${product.description.substring(0, 100)}...</p>
+          <div class="product-price">Rp ${new Intl.NumberFormat('id-ID').format(product.price)}</div>
+          <button class="btn add-to-cart" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">🛒 Tambah ke Keranjang</button>
+        </div>
+      </div>
+    `;
+  }
 
+  function fetchAndRenderProducts() {
+    const productsGrid = document.getElementById('productsGrid');
+    if (!productsGrid) return;
 
-    // --- 2. Load Ulasan yang Disetujui Admin (GET dari PHP) ---
-    function generateReviewCardHTML(review) {
-        return `
-            <div class="testimonial-card">
-                <p class="testimonial-text">"${review.comment}"</p>
-                <div class="testimonial-author">
-                    <div class="author-avatar">${review.user_name.charAt(0)}</div>
-                    <div class="author-info">
-                        <h4>${review.user_name}</h4>
-                        <p>Produk: ${review.productName}</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
+    productsGrid.innerHTML = '<p>Memuat produk dari admin...</p>';
 
-    function fetchAndRenderReviews() {
-        const reviewsGrid = document.getElementById('testimonialsGrid');
-        if (!reviewsGrid) return;
-        
-        reviewsGrid.innerHTML = '<p>Memuat ulasan yang disetujui Admin...</p>';
-        
-        // GANTI: Menggunakan fetch GET status=approved dari reviews.php
-        fetch(`${API_BASE_URL}/reviews.php?status=approved`)
-        .then(response => response.json())
-        .then(approvedReviews => {
-            reviewsGrid.innerHTML = '';
-            if (approvedReviews.length === 0) {
-                reviewsGrid.innerHTML = '<p>Belum ada testimoni yang disetujui Admin.</p>';
-                return;
-            }
-            
-            approvedReviews.forEach(review => {
-                reviewsGrid.insertAdjacentHTML('beforeend', generateReviewCardHTML(review));
-            });
-        })
-        .catch(error => {
-            console.error('Error memuat ulasan:', error);
-            reviewsGrid.innerHTML = '<p class="text-danger">Testimoni gagal dimuat.</p>';
+    fetch(`${API_BASE_URL}/products.php`)
+      .then(response => response.json())
+      .then(products => {
+        productsGrid.innerHTML = '';
+        if (!products || products.length === 0) {
+          productsGrid.innerHTML = '<p>Belum ada produk.</p>';
+          return;
+        }
+
+        products.forEach(p => {
+          productsGrid.insertAdjacentHTML('beforeend', generateProductCardHTML(p));
         });
+
+        // pasang event listener sesudah produk dimuat
+        attachAddToCartListeners();
+      })
+      .catch(err => {
+        console.error('Gagal load produk:', err);
+        productsGrid.innerHTML = '<p class="text-danger">Gagal memuat produk.</p>';
+      });
+  }
+
+  // ========== HANDLE TAMBAH KE KERANJANG ==========
+  function handleAddToCartClick(e) {
+    const btn = e.currentTarget;
+    const name = btn.dataset.name;
+    const price = parseInt(btn.dataset.price);
+
+    if (!name || isNaN(price)) {
+      alert('Produk tidak valid.');
+      return;
     }
 
-    // --- 3. Handle Pengiriman Ulasan (POST ke PHP) ---
-    const reviewForm = document.getElementById('reviewForm'); 
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = cart.find(item => item.name === name);
 
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const userId = getLoggedInUserId(); 
-            const productId = reviewForm.getAttribute('data-product-id') || 'P1'; // Ganti P1 dengan ID produk yang ingin diulas
-            const comment = document.getElementById('reviewText').value;
-            const userName = document.getElementById('reviewName').value || 'Pelanggan ' + userId;
-
-            const reviewData = {
-                userId: userId,
-                productId: productId,
-                comment: comment,
-                userName: userName
-            };
-
-            // GANTI: Menggunakan fetch POST ke reviews.php
-            fetch(`${API_BASE_URL}/reviews.php`, { 
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(reviewData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(`[Server Respon] ${data.message}`); 
-                if (data.status === 'success') {
-                    reviewForm.reset();
-                }
-                fetchAndRenderReviews();
-            })
-            .catch(error => console.error('Error saat POST ulasan:', error));
-        });
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ name, price, qty: 1 });
     }
 
-    // --- Fungsionalitas Lama (Sama) ---
-    function attachAddToCartListeners() {
-        const addToCartButtons = document.querySelectorAll('.add-to-cart');
-        addToCartButtons.forEach(button => {
-            button.removeEventListener('click', handleAddToCart); 
-            button.addEventListener('click', handleAddToCart);
-        });
-    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${name} berhasil ditambahkan ke keranjang 🛒`);
+    console.log('🧾 Cart Sekarang:', cart);
+  }
 
-    function handleAddToCart() {
-        const productName = this.closest('.product-card').querySelector('.product-name').textContent;
-        alert(`🛒 Produk ${productName} telah ditambahkan ke keranjang!`);
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
+  function attachAddToCartListeners() {
+    document.querySelectorAll('.add-to-cart, .add-to-cart-standalone').forEach(btn => {
+      btn.removeEventListener('click', handleAddToCartClick);
+      btn.addEventListener('click', handleAddToCartClick);
     });
+  }
 
-    // Panggil fungsi utama saat DOM siap
-    fetchAndRenderProducts();
-    fetchAndRenderReviews();
+  // ========== HANDLE BELI SEKARANG ==========
+  function handleCheckoutNowClick(e) {
+    const btn = e.currentTarget;
+    const name = btn.dataset.name;
+    const price = parseInt(btn.dataset.price);
+
+    if (!name || isNaN(price)) {
+      alert('Produk tidak valid.');
+      return;
+    }
+
+    localStorage.setItem('cart', JSON.stringify([{ name, price, qty: 1 }]));
+    window.location.href = 'cart.html';
+  }
+
+  function attachCheckoutListeners() {
+    document.querySelectorAll('.checkout-now').forEach(btn => {
+      btn.removeEventListener('click', handleCheckoutNowClick);
+      btn.addEventListener('click', handleCheckoutNowClick);
+    });
+  }
+
+  // ========== LOAD TESTIMONI ==========
+  function generateReviewCardHTML(review) {
+    return `
+      <div class="testimonial-card">
+        <p class="testimonial-text">"${review.comment}"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">${review.user_name.charAt(0)}</div>
+          <div class="author-info">
+            <h4>${review.user_name}</h4>
+            <p>Produk: ${review.productName}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function fetchAndRenderReviews() {
+    const reviewsGrid = document.getElementById('testimonialsGrid');
+    if (!reviewsGrid) return;
+
+    reviewsGrid.innerHTML = '<p>Memuat testimoni...</p>';
+
+    fetch(`${API_BASE_URL}/reviews.php?status=approved`)
+      .then(res => res.json())
+      .then(data => {
+        reviewsGrid.innerHTML = '';
+        if (!data || data.length === 0) {
+          reviewsGrid.innerHTML = '<p>Belum ada testimoni.</p>';
+          return;
+        }
+        data.forEach(r => reviewsGrid.insertAdjacentHTML('beforeend', generateReviewCardHTML(r)));
+      })
+      .catch(err => {
+        console.error('Gagal load testimoni:', err);
+        reviewsGrid.innerHTML = '<p>Gagal memuat testimoni.</p>';
+      });
+  }
+
+  // ========== JALANKAN SAAT HALAMAN DILOAD ==========
+  fetchAndRenderProducts();
+  fetchAndRenderReviews();
+  attachAddToCartListeners();
+  attachCheckoutListeners();
+
 });

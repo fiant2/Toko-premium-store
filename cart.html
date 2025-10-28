@@ -81,6 +81,9 @@
     const cartContainer = document.getElementById('cartItems');
     const totalPriceEl = document.getElementById('totalPrice');
 
+    console.log("🧩 Data cart dari localStorage:", localStorage.getItem('cart'));
+
+
     // Kalau kosong
     if (cart.length === 0) {
       cartContainer.innerHTML = "<p>Keranjang kamu kosong 😢</p>";
