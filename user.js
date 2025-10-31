@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
 
   // ========== CEK STATUS CHECKOUT ==========
@@ -26,7 +25,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
 
   function getLoggedInUserId() {
-    return 'USER-TEST-1';
+    return 'USER-TEST-1';  // Ini bisa dihapus jika tidak digunakan, atau ganti dengan session check
+  }
+
+  // ========== LOAD CART COUNT DARI DATABASE ==========
+  function loadCartCountFromDB() {
+    fetch(`${API_BASE_URL}/get_cart.php`)
+      .then(r => r.json())
+      .then(data => {
+        const cart = data.cart || [];
+        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+        const cartCountEl = document.getElementById("cartCount");
+        if (cartCountEl) {
+          cartCountEl.textContent = totalItems;
+          cartCountEl.style.display = totalItems > 0 ? 'inline' : 'none';
+        }
+      })
+      .catch(err => console.error('Error loading cart count:', err));
   }
 
   // ========== LOAD PRODUK DARI API ==========
@@ -67,8 +82,9 @@ document.addEventListener('DOMContentLoaded', function () {
           productsGrid.insertAdjacentHTML('beforeend', generateProductCardHTML(p));
         });
 
-        // pasang event listener sesudah produk dimuat
+        // Pasang event listener setelah produk dimuat
         attachAddToCartListeners();
+        attachCheckoutListeners();
       })
       .catch(err => {
         console.error('Gagal load produk:', err);
@@ -76,29 +92,38 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  // ========== HANDLE TAMBAH KE KERANJANG ==========
+  // ========== HANDLE TAMBAH KE KERANJANG (VIA API) ==========
   function handleAddToCartClick(e) {
     const btn = e.currentTarget;
-    const name = btn.dataset.name;
+    const product_id = btn.dataset.id;  // Pastikan ini ada dari generateProductCardHTML
+    const product_name = btn.dataset.name;
     const price = parseInt(btn.dataset.price);
 
-    if (!name || isNaN(price)) {
+    if (!product_id || !product_name || isNaN(price)) {
       alert('Produk tidak valid.');
       return;
     }
 
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existing = cart.find(item => item.name === name);
-
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({ name, price, qty: 1 });
-    }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert(`${name} berhasil ditambahkan ke keranjang 🛒`);
-    console.log('🧾 Cart Sekarang:', cart);
+    // Panggil API add_to_cart.php
+    fetch(`${API_BASE_URL}/add_to_cart.php`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ product_id, product_name, price, qty: 1 }),
+      credentials: 'include' 
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        alert(`${product_name} berhasil ditambahkan ke keranjang 🛒`);
+        loadCartCountFromDB();  // Update count setelah tambah
+      } else {
+        alert('Gagal menambah ke keranjang: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error('Error adding to cart:', err);
+      alert('Terjadi kesalahan saat menambah ke keranjang.');
+    });
   }
 
   function attachAddToCartListeners() {
@@ -108,19 +133,36 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ========== HANDLE BELI SEKARANG ==========
+  // ========== HANDLE BELI SEKARANG (VIA API) ==========
   function handleCheckoutNowClick(e) {
     const btn = e.currentTarget;
-    const name = btn.dataset.name;
+    const product_id = btn.dataset.id;
+    const product_name = btn.dataset.name;
     const price = parseInt(btn.dataset.price);
 
-    if (!name || isNaN(price)) {
+    if (!product_id || !product_name || isNaN(price)) {
       alert('Produk tidak valid.');
       return;
     }
 
-    localStorage.setItem('cart', JSON.stringify([{ name, price, qty: 1 }]));
-    window.location.href = 'cart.html';
+    // Tambah ke cart via API dulu
+    fetch(`${API_BASE_URL}/add_to_cart.php`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ product_id, product_name, price, qty: 1 })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = 'cart.html';  // Redirect setelah berhasil
+      } else {
+        alert('Gagal menambah produk untuk checkout.');
+      }
+    })
+    .catch(err => {
+      console.error('Error checkout now:', err);
+      alert('Terjadi kesalahan saat checkout.');
+    });
   }
 
   function attachCheckoutListeners() {
@@ -171,7 +213,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // ========== JALANKAN SAAT HALAMAN DILOAD ==========
   fetchAndRenderProducts();
   fetchAndRenderReviews();
-  attachAddToCartListeners();
-  attachCheckoutListeners();
+  loadCartCountFromDB();  // Load count cart di awal
 
 });
