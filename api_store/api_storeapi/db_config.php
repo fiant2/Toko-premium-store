@@ -1,8 +1,8 @@
 <?php
 // db_config.php - Konfigurasi Database
 $servername = "localhost";
-$username = "root"; // Username default XAMPP
-$password = "";     // Password default XAMPP
+$username = "root"; // Username default 
+$password = "";     // Password default 
 $dbname = "premium_store"; // Nama database yang kita buat
 
 // Buat koneksi
