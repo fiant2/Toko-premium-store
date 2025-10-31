@@ -43,7 +43,11 @@
              alt="Profil Pengguna" 
              style="width:38px;height:38px;border-radius:50%;border:2px solid #eee;box-shadow:0 2px 8px rgba(0,0,0,0.07);background:#fff;">
     </div>
-    <button id="logoutBtn" class="btn btn-logout" style="margin-left:20px;">Logout</button>
+    <!-- 🔑 Tombol Login/Logout Dinamis -->
+      <div id="authButtons" style="margin-left:20px;">
+        <button id="loginBtn" class="btn">Login</button>
+        <button id="logoutBtn" class="btn" style="display:none;">Logout</button>
+      </div>
 </div>
 
 <div id="profilePopup" class="profile-popup" style="display:none;">
@@ -296,12 +300,140 @@
 <script src="user.js"></script>
 <!-- indexuser.html - Bagian Script -->
 <script>
-// === Event Klik Ikon Keranjang ===
+const API_BASE = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
+
+// 🧠 update tombol login/logout
+function updateAuthButtons(isLoggedIn) {
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (isLoggedIn) {
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+  } else {
+    loginBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+  }
+}
+
+// 🚀 cek status login
+fetch(`${API_BASE}/check_session.php`, { credentials: 'include' })
+  .then(res => res.json())
+  .then(data => {
+    window.isLoggedIn = !!data.logged_in;
+    updateAuthButtons(window.isLoggedIn);
+
+    // kalau login, isi popup profile
+    if (data.logged_in) {
+      document.getElementById('popupProfileName').textContent = data.user_name || 'User';
+      document.getElementById('popupProfileEmail').textContent = data.user_email || '-';
+    } else {
+      document.getElementById('popupProfileName').textContent = 'Belum Login';
+      document.getElementById('popupProfileEmail').textContent = '-';
+    }
+  })
+  .catch(err => console.error('Gagal cek session:', err));
+
+// 🔘 tombol login
+document.getElementById('loginBtn').addEventListener('click', () => {
+  window.location.href = 'loginuser.html';
+});
+
+// 🔴 tombol logout
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  fetch(`${API_BASE}/logout_process.php`, {
+    method: 'POST',
+    credentials: 'include'
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message || 'Logout berhasil');
+    window.isLoggedIn = false;
+    updateAuthButtons(false);
+    window.location.reload();
+  })
+  .catch(err => {
+    console.error('Gagal logout:', err);
+    alert('Gagal logout, coba lagi.');
+  });
+});
+
+// 🛒 event klik keranjang
 document.getElementById('cartIcon').addEventListener('click', function () {
-    // Arahkan ke halaman cart
+  if (!window.isLoggedIn) {
+    alert('Silakan login terlebih dahulu untuk melihat keranjang Anda.');
+    window.location.href = 'loginuser.html';
+  } else {
     window.location.href = 'cart.html';
+  }
+});
+
+// 👤 tampilkan popup profil saat klik avatar
+document.getElementById('profileIcon').addEventListener('click', () => {
+  const popup = document.getElementById('profilePopup');
+  popup.style.display = (popup.style.display === 'block') ? 'none' : 'block';
+});
+
+// tutup popup kalau klik di luar
+document.addEventListener('click', function(event) {
+  const popup = document.getElementById('profilePopup');
+  const icon = document.getElementById('profileIcon');
+  if (!popup.contains(event.target) && !icon.contains(event.target)) {
+    popup.style.display = 'none';
+  }
+});
+
+// 🔍 PENCARIAN CERDAS (smart search)
+const searchIcon = document.getElementById('searchIcon');
+const searchInput = document.getElementById('searchInput');
+
+searchIcon.addEventListener('click', function() {
+  if (searchInput.style.display === 'none' || searchInput.style.display === '') {
+    searchInput.style.display = 'block';
+    searchInput.focus();
+  } else {
+    searchInput.style.display = 'none';
+  }
+});
+
+// daftar kata kunci & section tujuannya
+const keywordMap = [
+  { keywords: ['produk', 'netflix', 'spotify', 'youtube', 'disney', 'akun'], target: 'products' },
+  { keywords: ['cara beli', 'pembelian', 'bayar', 'pembayaran', 'belanja'], target: 'how-it-works' },
+  { keywords: ['testimoni', 'ulasan', 'review', 'komentar'], target: 'testimonials' },
+  { keywords: ['faq', 'pertanyaan'], target: 'faq' },
+  { keywords: ['syarat', 'ketentuan'], target: 'terms' },
+  { keywords: ['privasi', 'data', 'kebijakan'], target: 'privacy' },
+  { keywords: ['kontak', 'hubungi', 'wa', 'whatsapp'], target: 'footer' },
+  { keywords: ['beranda', 'home'], target: 'hero' }
+];
+
+searchInput.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const input = e.target.value.toLowerCase().trim();
+    let matchedSection = null;
+
+    // cari apakah ada kata kunci yang cocok sebagian
+    for (const group of keywordMap) {
+      if (group.keywords.some(keyword => input.includes(keyword))) {
+        matchedSection = group.target;
+        break;
+      }
+    }
+
+    if (matchedSection) {
+      document.getElementById(matchedSection).scrollIntoView({ behavior: 'smooth' });
+    } else {
+      alert('Bagian yang kamu cari tidak ditemukan.');
+    }
+
+    // reset
+    searchInput.style.display = 'none';
+    e.target.value = '';
+  }
 });
 </script>
+
 
 </body>
 </html>
