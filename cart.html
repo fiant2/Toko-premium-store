@@ -75,86 +75,103 @@
   <div class="total" id="totalPrice"></div>
   <button class="btn" id="checkoutBtn">Lanjut ke Checkout</button>
 
-<!-- cart.html - Bagian Script -->
-<script>
+  <script>
+    const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
     let cart = [];
 
-    function loadCart() {
-        fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/get_cart.php')
-            .then(r => r.json())
-            .then(data => {
-                cart = data.cart || [];
-                renderCart();
-            })
-            .catch(err => console.error('Error loading cart:', err));
-    }
-
-    function renderCart() {
-        const cartContainer = document.getElementById('cartItems');
-        const totalPriceEl = document.getElementById('totalPrice');
-        const checkoutBtn = document.getElementById('checkoutBtn');
-
-        if (cart.length === 0) {
-            cartContainer.innerHTML = "<p>Keranjang kamu kosong 😢</p>";
-            checkoutBtn.style.display = 'none';
-            totalPriceEl.textContent = '';
-            return;
+    // 🔒 Cek Login Dulu Sebelum Load Cart
+    fetch(`${API_BASE_URL}/check_session.php`, { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.logged_in) {
+          alert('Silakan login terlebih dahulu untuk melihat keranjang Anda.');
+          window.location.href = 'loginuser.html';
+        } else {
+          loadCart();
         }
+      })
+      .catch(err => console.error('Gagal cek login:', err));
 
-        let total = 0;
-        cartContainer.innerHTML = cart.map((item, index) => {
-            total += item.price * item.qty;
-            return `
-                <div class="cart-item">
-                    <span class="cart-item-name">${item.product_name}</span>
-                    <div>
-                        <button class="btn btn-remove" onclick="removeItem(${item.product_id})">Hapus</button>
-                        <span class="cart-item-qty">x${item.qty}</span>
-                        <span>Rp${(item.price * item.qty).toLocaleString()}</span>
-                    </div>
-                </div>
-            `;
-        }).join("");
-        totalPriceEl.textContent = "Total: Rp" + total.toLocaleString();
-        checkoutBtn.style.display = 'block';
+    // 🔄 Load Keranjang
+    function loadCart() {
+      fetch(`${API_BASE_URL}/get_cart.php`, { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          cart = data.cart || [];
+          renderCart();
+        })
+        .catch(err => console.error('Error loading cart:', err));
     }
 
+    // 🎨 Render isi keranjang
+    function renderCart() {
+      const cartContainer = document.getElementById('cartItems');
+      const totalPriceEl = document.getElementById('totalPrice');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+
+      if (cart.length === 0) {
+        cartContainer.innerHTML = "<p>Keranjang kamu kosong 😢</p>";
+        checkoutBtn.style.display = 'none';
+        totalPriceEl.textContent = '';
+        return;
+      }
+
+      let total = 0;
+      cartContainer.innerHTML = cart.map(item => {
+        total += item.price * item.qty;
+        return `
+          <div class="cart-item">
+            <span class="cart-item-name">${item.product_name}</span>
+            <div>
+              <button class="btn btn-remove" onclick="removeItem(${item.product_id})">Hapus</button>
+              <span class="cart-item-qty">x${item.qty}</span>
+              <span>Rp${(item.price * item.qty).toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+      totalPriceEl.textContent = "Total: Rp" + total.toLocaleString();
+      checkoutBtn.style.display = 'block';
+    }
+
+    // 🗑️ Hapus Item dari Keranjang
     function removeItem(product_id) {
-        fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/remove_from_cart.php', {
-            method: 'DELETE',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ product_id })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                loadCart(); // Reload
-            } else {
-                alert('Gagal menghapus item.');
-            }
-        });
+      fetch(`${API_BASE_URL}/remove_from_cart.php`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id }),
+        credentials: 'include'
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          loadCart(); // Reload cart
+        } else {
+          alert('Gagal menghapus item.');
+        }
+      })
+      .catch(err => console.error('Error:', err));
     }
 
-    // Tombol checkout
+    // 💳 Tombol Checkout
     document.getElementById('checkoutBtn').addEventListener('click', () => {
-        fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/checkout.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ cart })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                alert('Checkout berhasil! Order ID: ' + data.order_id);
-                window.location.href = 'indexuser.html'; // Redirect
-            } else {
-                alert('Gagal checkout.');
-            }
-        });
+      fetch(`${API_BASE_URL}/checkout.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cart }),
+        credentials: 'include'
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          alert('Checkout berhasil! Order ID: ' + data.order_id);
+          window.location.href = 'indexuser.html';
+        } else {
+          alert('Gagal checkout.');
+        }
+      })
+      .catch(err => console.error('Error checkout:', err));
     });
-
-    // Load saat halaman load
-    loadCart();
-</script>
+  </script>
 </body>
 </html>

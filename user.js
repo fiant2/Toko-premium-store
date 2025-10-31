@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ========== CEK STATUS CHECKOUT ==========
+  const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
+
+  // ✅ Cek status checkout (opsional)
   async function checkOrderStatus() {
     try {
-      const response = await fetch('check_order.php');
+      const response = await fetch('check_order.php', { credentials: 'include' });
       const data = await response.json();
       const form = document.getElementById('reviewForm');
       const notice = document.getElementById('reviewNotice');
@@ -21,16 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   checkOrderStatus();
 
-  // ========== KONFIGURASI API ==========
-  const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
-
-  function getLoggedInUserId() {
-    return 'USER-TEST-1';  // Ini bisa dihapus jika tidak digunakan, atau ganti dengan session check
-  }
-
-  // ========== LOAD CART COUNT DARI DATABASE ==========
+  // 🛒 Load jumlah item di keranjang
   function loadCartCountFromDB() {
-    fetch(`${API_BASE_URL}/get_cart.php`)
+    fetch(`${API_BASE_URL}/get_cart.php`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => {
         const cart = data.cart || [];
@@ -44,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(err => console.error('Error loading cart count:', err));
   }
 
-  // ========== LOAD PRODUK DARI API ==========
+  // 🛍️ Load Produk
   function generateProductCardHTML(product) {
     return `
       <div class="product-card" data-product-id="${product.id}">
@@ -69,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     productsGrid.innerHTML = '<p>Memuat produk dari admin...</p>';
 
-    fetch(`${API_BASE_URL}/products.php`)
+    fetch(`${API_BASE_URL}/products.php`, { credentials: 'include' })
       .then(response => response.json())
       .then(products => {
         productsGrid.innerHTML = '';
@@ -82,9 +77,9 @@ document.addEventListener('DOMContentLoaded', function () {
           productsGrid.insertAdjacentHTML('beforeend', generateProductCardHTML(p));
         });
 
-        // Pasang event listener setelah produk dimuat
+
         attachAddToCartListeners();
-        attachCheckoutListeners();
+        
       })
       .catch(err => {
         console.error('Gagal load produk:', err);
@@ -92,109 +87,57 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  // ========== HANDLE TAMBAH KE KERANJANG (VIA API) ==========
+  // 🧩 Tambah ke Keranjang
   function handleAddToCartClick(e) {
-    const btn = e.currentTarget;
-    const product_id = btn.dataset.id;  // Pastikan ini ada dari generateProductCardHTML
-    const product_name = btn.dataset.name;
-    const price = parseInt(btn.dataset.price);
-
-    if (!product_id || !product_name || isNaN(price)) {
-      alert('Produk tidak valid.');
-      return;
-    }
-
-    // Panggil API add_to_cart.php
-    fetch(`${API_BASE_URL}/add_to_cart.php`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ product_id, product_name, price, qty: 1 }),
-      credentials: 'include' 
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        alert(`${product_name} berhasil ditambahkan ke keranjang 🛒`);
-        loadCartCountFromDB();  // Update count setelah tambah
-      } else {
-        alert('Gagal menambah ke keranjang: ' + (data.error || 'Unknown error'));
-      }
-    })
-    .catch(err => {
-      console.error('Error adding to cart:', err);
-      alert('Terjadi kesalahan saat menambah ke keranjang.');
-    });
-  }
-
-  function attachAddToCartListeners() {
-    document.querySelectorAll('.add-to-cart, .add-to-cart-standalone').forEach(btn => {
-      btn.removeEventListener('click', handleAddToCartClick);
-      btn.addEventListener('click', handleAddToCartClick);
-    });
-  }
-
-  // ========== HANDLE BELI SEKARANG (VIA API) ==========
-  function handleCheckoutNowClick(e) {
     const btn = e.currentTarget;
     const product_id = btn.dataset.id;
     const product_name = btn.dataset.name;
     const price = parseInt(btn.dataset.price);
 
-    if (!product_id || !product_name || isNaN(price)) {
-      alert('Produk tidak valid.');
-      return;
-    }
+    // Cek session dulu
+    fetch(`${API_BASE_URL}/check_session.php`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(session => {
+        if (!session.logged_in) {
+          alert('Silakan login terlebih dahulu untuk menambah produk ke keranjang.');
+          window.location.href = 'loginuser.html';
+          return;
+        }
 
-    // Tambah ke cart via API dulu
-    fetch(`${API_BASE_URL}/add_to_cart.php`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ product_id, product_name, price, qty: 1 })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        window.location.href = 'cart.html';  // Redirect setelah berhasil
-      } else {
-        alert('Gagal menambah produk untuk checkout.');
-      }
-    })
-    .catch(err => {
-      console.error('Error checkout now:', err);
-      alert('Terjadi kesalahan saat checkout.');
+        // Jika sudah login, tambahkan ke keranjang
+        fetch(`${API_BASE_URL}/add_to_cart.php`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ product_id, product_name, price, qty: 1 }),
+          credentials: 'include'
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            alert(`${product_name} berhasil ditambahkan ke keranjang 🛒`);
+            loadCartCountFromDB();
+          } else {
+            alert('Gagal menambah ke keranjang: ' + (data.error || 'Unknown error'));
+          }
+        });
+      });
+  }
+
+  function attachAddToCartListeners() {
+    document.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.removeEventListener('click', handleAddToCartClick);
+      btn.addEventListener('click', handleAddToCartClick);
     });
   }
 
-  function attachCheckoutListeners() {
-    document.querySelectorAll('.checkout-now').forEach(btn => {
-      btn.removeEventListener('click', handleCheckoutNowClick);
-      btn.addEventListener('click', handleCheckoutNowClick);
-    });
-  }
-
-  // ========== LOAD TESTIMONI ==========
-  function generateReviewCardHTML(review) {
-    return `
-      <div class="testimonial-card">
-        <p class="testimonial-text">"${review.comment}"</p>
-        <div class="testimonial-author">
-          <div class="author-avatar">${review.user_name.charAt(0)}</div>
-          <div class="author-info">
-            <h4>${review.user_name}</h4>
-            <p>Produk: ${review.productName}</p>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
+  // 💬 Load Testimoni
   function fetchAndRenderReviews() {
     const reviewsGrid = document.getElementById('testimonialsGrid');
     if (!reviewsGrid) return;
 
     reviewsGrid.innerHTML = '<p>Memuat testimoni...</p>';
 
-    fetch(`${API_BASE_URL}/reviews.php?status=approved`)
+    fetch(`${API_BASE_URL}/reviews.php?status=approved`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         reviewsGrid.innerHTML = '';
@@ -202,7 +145,20 @@ document.addEventListener('DOMContentLoaded', function () {
           reviewsGrid.innerHTML = '<p>Belum ada testimoni.</p>';
           return;
         }
-        data.forEach(r => reviewsGrid.insertAdjacentHTML('beforeend', generateReviewCardHTML(r)));
+        data.forEach(r => {
+          reviewsGrid.insertAdjacentHTML('beforeend', `
+            <div class="testimonial-card">
+              <p class="testimonial-text">"${r.comment}"</p>
+              <div class="testimonial-author">
+                <div class="author-avatar">${r.user_name.charAt(0)}</div>
+                <div class="author-info">
+                  <h4>${r.user_name}</h4>
+                  <p>Produk: ${r.product_name}</p>
+                </div>
+              </div>
+            </div>
+          `);
+        });
       })
       .catch(err => {
         console.error('Gagal load testimoni:', err);
@@ -210,9 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  // ========== JALANKAN SAAT HALAMAN DILOAD ==========
+  // 🚀 Jalankan
   fetchAndRenderProducts();
   fetchAndRenderReviews();
-  loadCartCountFromDB();  // Load count cart di awal
-
+  loadCartCountFromDB();
 });
