@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout - AkunPremium</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+  <style>
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      font-family: 'Segoe UI', sans-serif; 
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+    .checkout-card { 
+      max-width: 900px; 
+      margin: 2rem auto; 
+      background: white; 
+      border-radius: 20px; 
+      overflow: hidden; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .checkout-header { 
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52); 
+      color: white; 
+      padding: 2rem; 
+      text-align: center;
+    }
+    .checkout-header h3 { font-weight: 700; margin: 0; }
+    .checkout-body { padding: 2rem; }
+    .summary-card { 
+      background: #f8f9fa; 
+      border-radius: 15px; 
+      padding: 1.5rem; 
+      height: 100%;
+    }
+    .summary-item { 
+      padding: 0.75rem 0; 
+      border-bottom: 1px dashed #dee2e6; 
+    }
+    .summary-item:last-child { border: 0; }
+    .total-price { 
+      font-size: 1.6rem; 
+      font-weight: 800; 
+      color: #d63384; 
+    }
+    .btn-pay { 
+      background: linear-gradient(135deg, #28a745, #20c997); 
+      color: white; 
+      font-weight: bold; 
+      padding: 1rem 2.5rem; 
+      border-radius: 50px; 
+      border: none;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+    }
+    .btn-pay:hover { 
+      transform: translateY(-3px); 
+      box-shadow: 0 10px 20px rgba(40,167,69,0.3);
+    }
+    .form-label { font-weight: 600; color: #333; }
+    .form-control, .form-check-input { border-radius: 10px; }
+    .device-info { font-size: 0.9rem; color: #6c757d; background: #e9ecef; padding: 0.5rem 1rem; border-radius: 8px; }
+    @media (max-width: 768px) {
+      .checkout-card { margin: 1rem; }
+      .summary-card { margin-top: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="checkout-card">
+    <div class="checkout-header">
+      <h3>Checkout</h3>
+      <p class="mb-0">Selesaikan pembelian akun premium Anda</p>
+    </div>
+
+    <div class="checkout-body">
+      <div class="row g-4">
+        <!-- Form Pembeli -->
+        <div class="col-lg-7">
+          <h5 class="mb-3">Informasi Pembeli</h5>
+          <form id="checkoutForm">
+            <div class="mb-3">
+              <label class="form-label">Nama Lengkap</label>
+              <input type="text" class="form-control" id="buyerName" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="buyerEmail" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nomor HP (WhatsApp)</label>
+              <input type="tel" class="form-control" id="buyerPhone" placeholder="628123456789" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Device & Lokasi</label>
+              <div class="device-info" id="deviceInfo">
+                Mendeteksi...
+              </div>
+            </div>
+
+            <h5 class="mt-4 mb-3">Metode Pembayaran</h5>
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="form-check p-3 border rounded bg-light text-center">
+                  <input class="form-check-input" type="radio" name="payment" value="QRIS" id="qris" checked>
+                  <label class="form-check-label d-block mt-2" for="qris">
+                    <strong>QRIS</strong>
+                  </label>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-check p-3 border rounded bg-light text-center">
+                  <input class="form-check-input" type="radio" name="payment" value="Transfer Bank" id="bank">
+                  <label class="form-check-label d-block mt-2" for="bank">
+                    <strong>Transfer Bank</strong>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Ringkasan Pesanan -->
+        <div class="col-lg-5">
+          <div class="summary-card">
+            <h5 class="mb-3">Ringkasan Pesanan</h5>
+            <div id="orderSummary"></div>
+            <hr class="my-3">
+            <div class="d-flex justify-content-between total-price">
+              <span>Total:</span>
+              <span id="totalAmount">Rp0</span>
+            </div>
+            <button class="btn btn-pay w-100 mt-4" onclick="processCheckout()">
+              Bayar Sekarang
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
+    const summaryDiv = document.getElementById('orderSummary');
+    const totalAmountEl = document.getElementById('totalAmount');
+    const deviceInfoEl = document.getElementById('deviceInfo');
+
+    // Deteksi Device & Lokasi
+    function detectDeviceAndLocation() {
+      const device = navigator.userAgent.match(/\((.*?)\)/)[1] || 'Unknown Device';
+      const browser = navigator.userAgent.split(' ').pop();
+      
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const { latitude, longitude } = pos.coords;
+            deviceInfoEl.innerHTML = `
+              <strong>Device:</strong> ${device}<br>
+              <strong>Browser:</strong> ${browser}<br>
+              <strong>Lokasi:</strong> ${latitude.toFixed(4)}, ${longitude.toFixed(4)}
+            `;
+          },
+          () => {
+            deviceInfoEl.innerHTML = `
+              <strong>Device:</strong> ${device}<br>
+              <strong>Browser:</strong> ${browser}<br>
+              <span class="text-warning">Lokasi ditolak</span>
+            `;
+          }
+        );
+      } else {
+        deviceInfoEl.innerHTML = `Device: ${device} | Browser: ${browser}`;
+      }
+    }
+
+    // Load cart dari DB
+    async function loadCart() {
+      try {
+        const res = await fetch(`${API_BASE}/get_cart.php`, { credentials: 'include' });
+        const data = await res.json();
+        const cart = data.cart || [];
+
+        if (cart.length === 0) {
+          summaryDiv.innerHTML = '<p class="text-muted text-center">Keranjang kosong.</p>';
+          document.querySelector('.btn-pay').disabled = true;
+          return;
+        }
+
+        let total = 0;
+        summaryDiv.innerHTML = '';
+
+        cart.forEach(item => {
+          const subtotal = item.price * item.qty;
+          total += subtotal;
+
+          const itemEl = document.createElement('div');
+          itemEl.className = 'summary-item d-flex justify-content-between';
+          itemEl.innerHTML = `
+            <div>
+              <strong>${item.product_name}</strong><br>
+              <small class="text-muted">${item.qty} x Rp${parseFloat(item.price).toLocaleString('id-ID')}</small>
+            </div>
+            <div class="text-end fw-bold">Rp${subtotal.toLocaleString('id-ID')}</div>
+          `;
+          summaryDiv.appendChild(itemEl);
+        });
+
+        totalAmountEl.textContent = `Rp${total.toLocaleString('id-ID')}`;
+      } catch (err) {
+        summaryDiv.innerHTML = '<p class="text-danger">Gagal memuat pesanan.</p>';
+      }
+    }
+
+    // Proses checkout
+    async function processCheckout() {
+      const form = document.getElementById('checkoutForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/get_cart.php`, { credentials: 'include' });
+      const data = await res.json();
+      const cart = data.cart || [];
+
+      if (cart.length === 0) {
+        alert('Keranjang kosong!');
+        return;
+      }
+
+      const payload = {
+        cart: cart,
+        customer_name: document.getElementById('buyerName').value,
+        customer_email: document.getElementById('buyerEmail').value,
+        note: deviceInfoEl.innerText,
+        payment_method: document.querySelector('input[name="payment"]:checked').value
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/checkout.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('Pesanan berhasil! Kami akan hubungi Anda via WhatsApp/Email.');
+          window.location.href = 'success.html';
+        } else {
+          alert('Gagal checkout: ' + (result.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Terjadi kesalahan server.');
+        console.error(err);
+      }
+    }
+
+    // Jalankan saat load
+    document.addEventListener('DOMContentLoaded', () => {
+      detectDeviceAndLocation();
+      loadCart();
+    });
+  </script>
+</body>
+</html>

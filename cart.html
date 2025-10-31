@@ -2,175 +2,158 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Keranjang Belanja</title>
-  <link rel="stylesheet" href="user.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f9fa;
-      margin: 0;
-      padding: 40px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .cart-container {
-      max-width: 700px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #eee;
-      padding: 10px 0;
-    }
-    .cart-item:last-child {
-      border-bottom: none;
-    }
-    .cart-item-name {
-      font-weight: 600;
-    }
-    .cart-item-qty {
-      margin: 0 10px;
-    }
-    .total {
-      text-align: right;
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .btn:hover {
-      background: #0056b3;
-    }
-    .btn-remove {
-      background: #dc3545;
-    }
-    .btn-remove:hover {
-      background: #b02a37;
-    }
+    body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+    .cart-container { max-width: 800px; margin: 2rem auto; }
+    .cart-item { background: white; border-radius: 10px; margin-bottom: 1rem; padding: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .btn-delete { background: #dc3545; color: white; }
+    .btn-delete:hover { background: #c82333; }
+    .btn-checkout { background: #0d6efd; color: white; font-weight: bold; }
+    .btn-checkout:hover { background: #0b5ed7; }
+    .empty-cart { text-align: center; color: #6c757d; padding: 3rem; }
   </style>
 </head>
 <body>
 
-  <h2>🛒 Keranjang Belanja</h2>
-  <div class="cart-container" id="cartItems"></div>
-  <div class="total" id="totalPrice"></div>
-  <button class="btn" id="checkoutBtn">Lanjut ke Checkout</button>
+  <div class="cart-container">
+    <h2 class="text-center mb-4">
+      Keranjang Belanja
+    </h2>
+
+    <div id="cartItems"></div>
+
+    <div class="text-end mt-3">
+      <h4>Total: <span id="totalPrice" class="text-danger">Rp0</span></h4>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="checkout.html" id="checkoutBtn" class="btn btn-checkout btn-lg px-5" style="display: none;">
+        LANJUT KE CHECKOUT
+      </a>
+      <p id="emptyMessage" class="empty-cart">Keranjang belanja kosong.</p>
+    </div>
+  </div>
 
   <script>
-    const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
-    let cart = [];
+    const API_BASE = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
 
-    // 🔒 Cek Login Dulu Sebelum Load Cart
-    fetch(`${API_BASE_URL}/check_session.php`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(data => {
-        if (!data.logged_in) {
-          alert('Silakan login terlebih dahulu untuk melihat keranjang Anda.');
-          window.location.href = 'loginuser.html';
+    const cartItemsDiv = document.getElementById('cartItems');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const emptyMessage = document.getElementById('emptyMessage');
+
+    // Fetch cart dari database
+    async function fetchCart() {
+      try {
+        const res = await fetch(`${API_BASE}/get_cart.php`, {
+          method: 'GET',
+          credentials: 'include' // Kirim session cookie
+        });
+        const data = await res.json();
+
+        if (data.cart && data.cart.length > 0) {
+          renderCart(data.cart);
         } else {
-          loadCart();
+          showEmptyCart();
         }
-      })
-      .catch(err => console.error('Gagal cek login:', err));
-
-    // 🔄 Load Keranjang
-    function loadCart() {
-      fetch(`${API_BASE_URL}/get_cart.php`, { credentials: 'include' })
-        .then(r => r.json())
-        .then(data => {
-          cart = data.cart || [];
-          renderCart();
-        })
-        .catch(err => console.error('Error loading cart:', err));
+      } catch (err) {
+        console.error('Gagal fetch cart:', err);
+        showEmptyCart('Gagal memuat keranjang. Pastikan Anda sudah login.');
+      }
     }
 
-    // 🎨 Render isi keranjang
-    function renderCart() {
-      const cartContainer = document.getElementById('cartItems');
-      const totalPriceEl = document.getElementById('totalPrice');
-      const checkoutBtn = document.getElementById('checkoutBtn');
-
-      if (cart.length === 0) {
-        cartContainer.innerHTML = "<p>Keranjang kamu kosong 😢</p>";
-        checkoutBtn.style.display = 'none';
-        totalPriceEl.textContent = '';
-        return;
-      }
-
+    function renderCart(cart) {
+      cartItemsDiv.innerHTML = '';
       let total = 0;
-      cartContainer.innerHTML = cart.map(item => {
-        total += item.price * item.qty;
-        return `
-          <div class="cart-item">
-            <span class="cart-item-name">${item.product_name}</span>
-            <div>
-              <button class="btn btn-remove" onclick="removeItem(${item.product_id})">Hapus</button>
-              <span class="cart-item-qty">x${item.qty}</span>
-              <span>Rp${(item.price * item.qty).toLocaleString()}</span>
-            </div>
+
+      emptyMessage.style.display = 'none';
+      checkoutBtn.style.display = 'inline-block';
+
+      cart.forEach(item => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+
+        const itemEl = document.createElement('div');
+        itemEl.className = 'cart-item d-flex justify-content-between align-items-center';
+        itemEl.innerHTML = `
+          <div>
+            <h6 class="mb-1">${item.product_name}</h6>
+            <small class="text-muted">${item.qty} x Rp${parseFloat(item.price).toLocaleString('id-ID')}</small>
+          </div>
+          <div class="text-end">
+            <strong>Rp${subtotal.toLocaleString('id-ID')}</strong><br>
+            <button class="btn btn-delete btn-sm mt-1" onclick="removeItem(${item.product_id})">
+              HAPUS
+            </button>
           </div>
         `;
-      }).join("");
-      totalPriceEl.textContent = "Total: Rp" + total.toLocaleString();
-      checkoutBtn.style.display = 'block';
+        cartItemsDiv.appendChild(itemEl);
+      });
+
+      totalPriceEl.textContent = `Rp${total.toLocaleString('id-ID')}`;
+      updateCartBadge(cart);
     }
 
-    // 🗑️ Hapus Item dari Keranjang
-    function removeItem(product_id) {
-      fetch(`${API_BASE_URL}/remove_from_cart.php`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id }),
-        credentials: 'include'
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          loadCart(); // Reload cart
-        } else {
-          alert('Gagal menghapus item.');
-        }
-      })
-      .catch(err => console.error('Error:', err));
+    function showEmptyCart(msg = 'Keranjang belanja kosong.') {
+      emptyMessage.textContent = msg;
+      emptyMessage.style.display = 'block';
+      checkoutBtn.style.display = 'none';
+      totalPriceEl.textContent = 'Rp0';
     }
 
-    // 💳 Tombol Checkout
-    document.getElementById('checkoutBtn').addEventListener('click', () => {
-      fetch(`${API_BASE_URL}/checkout.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart }),
-        credentials: 'include'
-      })
-      .then(r => r.json())
-      .then(data => {
+    // Hapus item dari cart
+    async function removeItem(productId) {
+      if (!confirm('Hapus item ini dari keranjang?')) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/remove_from_cart.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_id: productId }),
+          credentials: 'include'
+        });
+        const data = await res.json();
+
         if (data.success) {
-          alert('Checkout berhasil! Order ID: ' + data.order_id);
-          window.location.href = 'indexuser.html';
+          fetchCart(); // Refresh
         } else {
-          alert('Gagal checkout.');
+          alert('Gagal hapus: ' + (data.error || 'Unknown error'));
         }
-      })
-      .catch(err => console.error('Error checkout:', err));
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Terjadi kesalahan saat menghapus item.');
+      }
+    }
+
+    // Update badge di navbar
+    function updateCartBadge(cart) {
+      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+      const badge = document.getElementById('cartCount');
+      if (badge) {
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'inline' : 'none';
+      }
+    }
+
+    // Cek login saat load
+    async function checkLogin() {
+      try {
+        const res = await fetch(`${API_BASE}/get_cart.php`, { credentials: 'include' });
+        if (!res.ok) throw new Error('Not logged in');
+      } catch {
+        showEmptyCart('Silakan login terlebih dahulu.');
+        setTimeout(() => window.location.href = 'loginuser.html', 2000);
+      }
+    }
+
+    // Jalankan saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+      checkLogin();
+      fetchCart();
     });
   </script>
 </body>
