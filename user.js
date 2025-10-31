@@ -100,17 +100,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const user_id = getLoggedInUserId();
 
     try {
-      const formData = new FormData();
-      formData.append('user_id', user_id);
-      formData.append('name', name);
-      formData.append('price', price);
-      formData.append('qty', 1);
+    const payload = {
+  product_id: btn.dataset.id,
+  product_name: name,
+  price: price,
+  qty: 1
+};
 
-      const response = await fetch(`${API_BASE_URL}/cart_api.php?action=add`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
+const response = await fetch(`${API_BASE_URL}/add_to_cart.php`, {
+  method: "POST",
+  body: JSON.stringify(payload),
+  headers: {
+    "Content-Type": "application/json"
+  },
+  credentials: "include"
+});
 
       const data = await response.json();
       if (data.success) {
