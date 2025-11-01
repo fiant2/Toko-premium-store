@@ -17,7 +17,6 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.1);
     }
 
-    /* HEADER: Judul di tengah, Pilih Semua di kanan */
     .cart-header {
       display: flex;
       justify-content: space-between;
@@ -65,13 +64,27 @@
       border-radius: 12px; padding: 12px 24px; font-weight: 600;
     }
     .btn-pink:hover { background-color: #ff85c1; }
+    .btn-back {
+      background: transparent;
+      color: #ff69b4;
+      border: 2px solid #ff69b4;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-back:hover {
+      background: #ff69b4;
+      color: white;
+    }
     .total-price { font-weight: bold; color: #ff69b4; font-size: 20px; }
     .empty-cart { text-align: center; color: #ff69b4; font-weight: 600; margin-top: 30px; font-size: 18px; }
     .form-check-input { width: 1.5em; height: 1.5em; cursor: pointer; }
     .form-check-input:checked { background-color: #ff69b4; border-color: #ff69b4; }
 
-    /* Tombol hanya muncul jika ada yang dipilih */
     #actionButtons { display: none; }
+    .action-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -79,7 +92,7 @@
   <div class="cart-container">
     <!-- HEADER -->
     <div class="cart-header">
-      <div class="cart-title">🛒Keranjang Belanja</div>
+      <div class="cart-title">Keranjang Belanja</div>
       <label class="select-all">
         <input type="checkbox" id="selectAll"> Pilih Semua
       </label>
@@ -87,12 +100,16 @@
 
     <div id="cartItems"></div>
 
-    <!-- Total + Tombol (Hanya muncul jika ada yang dipilih) -->
+    <!-- Total + Tombol -->
     <div class="d-flex justify-content-between align-items-center mt-4" id="actionArea" style="display:none;">
       <div class="total-price" id="totalPrice">Total: Rp 0</div>
-      <div id="actionButtons">
-        <button id="deleteSelected" class="btn btn-pink me-2">Hapus Terpilih</button>
-        <button id="checkoutBtn" class="btn btn-pink">Checkout</button>
+
+      <div class="action-buttons">
+        <a href="indexuser.html#products" class="btn btn-back">Kembali ke Produk</a>
+        <div id="actionButtons">
+          <button id="deleteSelected" class="btn btn-pink me-2" type="button">Hapus Terpilih</button>
+          <button id="checkoutBtn" class="btn btn-pink" type="button">Checkout</button>
+        </div>
       </div>
     </div>
 
@@ -122,18 +139,16 @@
 
     cartDiv.innerHTML = '';
 
-    // KOSONG
     if (cartItems.length === 0) {
       emptyMsg.style.display = 'block';
-      actionArea.style.display = 'none';
+      actionArea.style.display = 'none'; // SEMBUNYIKAN SEMUA TOMBOL & TOTAL
       selectAll.checked = false;
       return;
     }
 
-    // ADA ISI
     emptyMsg.style.display = 'none';
-    actionArea.style.display = 'flex';
-    document.getElementById('actionButtons').style.display = 'none'; // Sembunyi dulu
+    actionArea.style.display = 'flex'; // TAMPILKAN AREA TOMBOL
+    document.getElementById('actionButtons').style.display = 'none'; // Sembunyikan Hapus & Checkout dulu
 
     cartItems.forEach(item => {
       const div = document.createElement('div');
@@ -148,7 +163,7 @@
           </div>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <button class="qty-btn" onclick="changeQty(${item.product_id}, ${item.qty - 1})" ${item.qty <= 1 ? 'disabled' : ''}>−</button>
+          <button class="qty-btn" onclick="changeQty(${item.product_id}, ${item.qty - 1})" ${item.qty <= 1 ? 'disabled' : ''}>-</button>
           <span class="mx-2 fw-bold" style="min-width:24px;text-align:center;">${item.qty}</span>
           <button class="qty-btn" onclick="changeQty(${item.product_id}, ${item.qty + 1})">+</button>
         </div>
@@ -226,19 +241,29 @@
     }
   }
 
-  // HAPUS TERPILIH
   document.getElementById('deleteSelected').onclick = async () => {
     const selected = [...document.querySelectorAll('.select-item:checked')].map(c => parseInt(c.dataset.id));
     if (selected.length === 0) return;
     await removeFromCart(selected);
   };
 
-  // CHECKOUT: LANGSUNG KE checkout.html (PAKAI get_cart.php DI SANA)
   document.getElementById('checkoutBtn').onclick = () => {
     const selected = document.querySelectorAll('.select-item:checked');
     if (selected.length === 0) {
       return alert('Pilih minimal 1 item untuk checkout!');
     }
+
+    const checkoutItems = Array.from(selected).map(cb => {
+      const itemDiv = cb.closest('.cart-item');
+      return {
+        product_id: cb.dataset.id,
+        product_name: itemDiv.querySelector('h5').textContent.trim(),
+        price: parseInt(cb.dataset.price),
+        qty: parseInt(cb.dataset.qty)
+      };
+    });
+
+    sessionStorage.setItem('checkoutItems', JSON.stringify(checkoutItems));
     window.location.href = 'checkout.html';
   };
 
