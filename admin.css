@@ -233,6 +233,10 @@
             display: flex;
             align-items: center;
         }
+
+        .stat-change.down{
+            color: #dc2626;
+        }
         
         .positive {
             color: #16a34a;

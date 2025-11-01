@@ -286,23 +286,7 @@ const sectionsMap = {
   sales: document.getElementById('sales-section')
 };
 
-function showSection(name) {
-  Object.values(sectionsMap).forEach(sec => {
-    if (sec) sec.style.display = 'none';
-  });
 
-  if (name === 'dashboard') {
-    sectionsMap.dashboard.style.display = 'grid';
-    sectionsMap.orders.style.display = 'block'; // tampilkan pesanan terbaru hanya di dashboard
-  } else if (sectionsMap[name]) {
-    sectionsMap[name].style.display = 'block';
-  }
-
-  if (name === 'products') loadAdminProducts();
-  if (name === 'reviews') loadPendingReviews();
-  if (name === 'customers') loadCustomers();
-  if (name === 'sales') loadSales();
-}
 
 
 // # nama db nya sales, tombolnya pesanan
@@ -564,7 +548,7 @@ document.getElementById('statTotalOrders')?.addEventListener('click', function()
   const customerModal = document.getElementById('customerModal');
   const customerForm = document.getElementById('customerForm');
 
-  document.getElementById('addCustomerBtn').addEventListener('click', () => {
+document.getElementById('addCustomerBtn').addEventListener('click', () => {
     document.getElementById('customerModalTitle').textContent = 'Tambah Pelanggan';
     document.getElementById('customerId').value = '';
     document.getElementById('customerName').value = '';
@@ -719,16 +703,23 @@ document.getElementById('statTotalCustomers')?.addEventListener('click', functio
   });
 
 function loadSales() {
+    console.log('loadSales dipanggil');  // Tambahkan ini
+  const salesTableBody = document.querySelector('#salesTable tbody');  // Atau #salesTableBody tbody jika diubah
+  console.log('salesTableBody ditemukan:', salesTableBody); 
+
   if (!salesTableBody) return;
   salesTableBody.innerHTML = `<tr><td colspan="10">Memuat data penjualan...</td></tr>`;
 
   fetch(`${API_BASE_URL}/admin_sales.php`)
     .then(r => r.json())
     .then(list => {
+       console.log('Data dari API (mentah):', list);  // Tambahkan ini
+    console.log('Jumlah data:', list.length); 
       if (!Array.isArray(list) || list.length === 0) {
         salesTableBody.innerHTML = `<tr><td colspan="10">Belum ada data penjualan.</td></tr>`;
         return;
       }
+      
 
       // 🔍 tampilkan semua (atau bisa filter kalau mau)
       const completedSales = list.filter(s => String(s.status).trim().toLowerCase() === 'completed');
@@ -737,6 +728,8 @@ function loadSales() {
         salesTableBody.innerHTML = `<tr><td colspan="10">Belum ada penjualan yang selesai (completed).</td></tr>`;
         return;
       }
+      console.log('Data setelah filter (completedSales):', completedSales);  // Tambahkan ini
+    console.log('Jumlah data yang akan ditampilkan:', completedSales.length);
 
       salesTableBody.innerHTML = '';
 
@@ -824,6 +817,7 @@ function loadSales() {
 
         // Event listener untuk Total Pendapatan agar buka section penjualan
 document.getElementById('statTotalRevenue')?.addEventListener('click', function() {
+  console.log('Tombol Total Pendapatan diklik!');
     // Highlight menu sidebar "Penjualan"
     document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
     const penjualanMenu = Array.from(document.querySelectorAll('.sidebar-menu a')).find(a => a.textContent.toLowerCase().includes('penjualan'));
