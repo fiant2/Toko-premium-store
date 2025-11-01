@@ -249,36 +249,53 @@
       }
     }
 
-    function loadCart() {
-      const stored = sessionStorage.getItem('checkoutItems');
-      if (!stored) {
-        summaryDiv.innerHTML = '<p class="text-danger">Tidak ada item untuk checkout.</p>';
+async function loadCart() {
+    try {
+        // Fetch data cart dari API (get_cart.php)
+        const cartRes = await fetch(`${API_BASE}/get_cart.php`, { credentials: 'include' });
+        if (!cartRes.ok) {
+            throw new Error('Gagal mengambil keranjang: ' + cartRes.statusText);
+        }
+        const cartData = await cartRes.json();
+        const cart = cartData.cart || [];
+
+        if (cart.length === 0) {
+            summaryDiv.innerHTML = '<p class="text-danger">Tidak ada item untuk checkout.</p>';
+            document.querySelector('.btn-pay').disabled = true;
+            totalAmountEl.textContent = 'Rp0';
+            return;
+        }
+
+        // Reset disabled button jika ada item
+        document.querySelector('.btn-pay').disabled = false;
+
+        // Tampilkan ringkasan
+        summaryDiv.innerHTML = '';
+        let total = 0;
+        cart.forEach(item => {
+            const subtotal = item.price * item.qty;
+            total += subtotal;
+
+            const itemEl = document.createElement('div');
+            itemEl.className = 'summary-item d-flex justify-content-between';
+            itemEl.innerHTML = `
+                <div>
+                    <strong>${item.product_name}</strong><br>
+                    <small class="text-muted">${item.qty} x Rp${parseFloat(item.price).toLocaleString('id-ID')}</small>
+                </div>
+                <div class="text-end fw-bold">Rp${subtotal.toLocaleString('id-ID')}</div>
+            `;
+            summaryDiv.appendChild(itemEl);
+        });
+
+        // Update total
+        totalAmountEl.textContent = `Rp${total.toLocaleString('id-ID')}`;
+    } catch (err) {
+        console.error('Error loading cart:', err);
+        summaryDiv.innerHTML = '<p class="text-danger">Gagal memuat keranjang. Coba refresh halaman.</p>';
         document.querySelector('.btn-pay').disabled = true;
-        return;
-      }
-
-      const cart = JSON.parse(stored);
-      let total = 0;
-      summaryDiv.innerHTML = '';
-
-      cart.forEach(item => {
-        const subtotal = item.price * item.qty;
-        total += subtotal;
-
-        const itemEl = document.createElement('div');
-        itemEl.className = 'summary-item d-flex justify-content-between';
-        itemEl.innerHTML = `
-          <div>
-            <strong>${item.product_name}</strong><br>
-            <small class="text-muted">${item.qty} x Rp${parseFloat(item.price).toLocaleString('id-ID')}</small>
-          </div>
-          <div class="text-end fw-bold">Rp${subtotal.toLocaleString('id-ID')}</div>
-        `;
-        summaryDiv.appendChild(itemEl);
-      });
-
-      totalAmountEl.textContent = `Rp${total.toLocaleString('id-ID')}`;
     }
+}
 
 async function processCheckout() {
     const form = document.getElementById('checkoutForm');
@@ -306,7 +323,7 @@ async function processCheckout() {
         const payload = {
             customer_name: document.getElementById('buyerName').value,
             customer_email: document.getElementById('buyerEmail').value,
-            note: document.getElementById('note').value || '',
+            note: document.getElementById('orderNote').value || '',
             payment_method: document.querySelector('input[name="payment"]:checked').value,
             cart: cart
         };

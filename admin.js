@@ -851,6 +851,161 @@ document.getElementById('viewAllSalesBtn')?.addEventListener('click', function(e
     showSection('sales');
 });
 
+   // --- FITUR SEARCH/CARI (GLOBAL DI DASHBOARD, FILTER DI SECTION LAIN) ---
+   const searchInput = document.querySelector('.search-box input');
+   if (searchInput) {
+       searchInput.addEventListener('keydown', function(event) {
+           if (event.key === 'Enter') {
+               const query = this.value.toLowerCase().trim();
+               if (!query) return;  // Jika kosong, jangan lakukan apa-apa
+
+               // Cari section aktif
+               const activeSection = Object.keys(sectionsMap).find(key => {
+                   const section = sectionsMap[key];
+                   return section && section.style.display !== 'none';
+               });
+
+               if (activeSection === 'dashboard') {
+                   // Jika di dashboard, cari global dan redirect
+                   performGlobalSearch(query);
+               } else {
+                   // Jika di section lain, filter seperti sebelumnya
+                   performSearch(query, activeSection);
+               }
+           }
+       });
+   }
+
+   // Fungsi pencarian global di dashboard (cari di semua data via API)
+   async function performGlobalSearch(query) {
+       // Cari di produk dulu (contoh prioritas)
+       try {
+           const products = await fetch(`${API_BASE_URL}/admin_products.php`).then(r => r.json());
+           const foundProduct = products.find(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+           if (foundProduct) {
+               // Pindah ke section produk, load, dan filter
+               showSection('products');
+               loadAdminProducts().then(() => searchProducts(query));
+               return;
+           }
+       } catch (err) {
+           console.error('Error fetching products:', err);
+       }
+
+       // Jika tidak ditemukan di produk, cari di pelanggan
+       try {
+           const customers = await fetch(`${API_BASE_URL}/admin_customers.php`).then(r => r.json());
+           const foundCustomer = customers.find(c => c.name.toLowerCase().includes(query) || c.email.toLowerCase().includes(query));
+           if (foundCustomer) {
+               showSection('customers');
+               loadCustomers().then(() => searchCustomers(query));
+               return;
+           }
+       } catch (err) {
+           console.error('Error fetching customers:', err);
+       }
+
+       // Jika tidak ditemukan di pelanggan, cari di penjualan
+       try {
+           const sales = await fetch(`${API_BASE_URL}/admin_sales.php`).then(r => r.json());
+           const foundSale = sales.find(s => s.order_number.toLowerCase().includes(query) || s.customer_id.toString().includes(query));
+           if (foundSale) {
+               showSection('sales');
+               loadSales().then(() => searchSales(query));
+               return;
+           }
+       } catch (err) {
+           console.error('Error fetching sales:', err);
+       }
+
+       // Jika tidak ditemukan di mana pun, beri pesan
+       alert(`Tidak ditemukan hasil untuk "${query}". Coba kata kunci lain.`);
+   }
+
+   // Fungsi pencarian/filter di section tertentu (untuk section selain dashboard)
+   function performSearch(query, activeSection) {
+       switch (activeSection) {
+           case 'products':
+               searchProducts(query);
+               break;
+           case 'customers':
+               searchCustomers(query);
+               break;
+           case 'sales':
+               searchSales(query);
+               break;
+           case 'orders':
+               searchOrders(query);
+               break;
+           case 'reviews':
+               searchReviews(query);
+               break;
+           default:
+               console.log('Search tidak didukung di section ini');
+       }
+   }
+
+   // Fungsi filter untuk Produk
+   function searchProducts(query) {
+       const grid = document.getElementById('adminProductsGrid');
+       if (!grid) return;
+       const cards = grid.querySelectorAll('.product-management-card');
+       cards.forEach(card => {
+           const name = card.querySelector('.product-name').textContent.toLowerCase();
+           const category = card.querySelector('.product-category').textContent.toLowerCase();
+           card.style.display = (name.includes(query) || category.includes(query)) ? 'block' : 'none';
+       });
+   }
+
+   // Fungsi filter untuk Pelanggan
+   function searchCustomers(query) {
+       const tableBody = document.querySelector('#customersTable tbody');
+       if (!tableBody) return;
+       const rows = tableBody.querySelectorAll('tr');
+       rows.forEach(row => {
+           const name = row.cells[1].textContent.toLowerCase();
+           const email = row.cells[2].textContent.toLowerCase();
+           row.style.display = (name.includes(query) || email.includes(query)) ? 'table-row' : 'none';
+       });
+   }
+
+   // Fungsi filter untuk Penjualan
+   function searchSales(query) {
+       const tableBody = document.querySelector('#salesTable tbody');
+       if (!tableBody) return;
+       const rows = tableBody.querySelectorAll('tr');
+       rows.forEach(row => {
+           const orderNumber = row.cells[1].textContent.toLowerCase();
+           const customerId = row.cells[2].textContent.toLowerCase();
+           row.style.display = (orderNumber.includes(query) || customerId.includes(query)) ? 'table-row' : 'none';
+       });
+   }
+
+   // Fungsi filter untuk Pesanan
+   function searchOrders(query) {
+       const tableBody = document.getElementById('ordersTableBody');
+       if (!tableBody) return;
+       const rows = tableBody.querySelectorAll('tr');
+       rows.forEach(row => {
+           const orderId = row.cells[0].textContent.toLowerCase();
+           const customerId = row.cells[1].textContent.toLowerCase();
+           row.style.display = (orderId.includes(query) || customerId.includes(query)) ? 'table-row' : 'none';
+       });
+   }
+
+   // Fungsi filter untuk Ulasan
+   function searchReviews(query) {
+       const container = document.getElementById('pendingReviewsContainer');
+       if (!container) return;
+       const items = container.querySelectorAll('.review-item');
+       items.forEach(item => {
+           const productName = item.querySelector('p').textContent.toLowerCase();
+           const comment = item.querySelector('p:nth-child(2)').textContent.toLowerCase();
+           item.style.display = (productName.includes(query) || comment.includes(query)) ? 'block' : 'none';
+       });
+   }
+   
+
     // --- Panggil Fungsi Utama ---
     loadAdminProducts(); 
     loadPendingReviews(); 
