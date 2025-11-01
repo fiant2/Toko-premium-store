@@ -217,7 +217,7 @@
   <footer>© 2025 AkunPremium. Semua Hak Dilindungi.</footer>
 
   <script>
-    const API_BASE = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
+   const API_BASE = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
     const summaryDiv = document.getElementById('orderSummary');
     const totalAmountEl = document.getElementById('totalAmount');
     const deviceInfoEl = document.getElementById('deviceInfo');
@@ -280,55 +280,66 @@
       totalAmountEl.textContent = `Rp${total.toLocaleString('id-ID')}`;
     }
 
-    async function processCheckout() {
-      const form = document.getElementById('checkoutForm');
-      if (!form.checkValidity()) {
+async function processCheckout() {
+    const form = document.getElementById('checkoutForm');
+    if (!form.checkValidity()) {
         form.reportValidity();
         return;
-      }
+    }
 
-      const stored = sessionStorage.getItem('checkoutItems');
-      if (!stored) {
-        alert('Tidak ada item untuk checkout!');
-        return;
-      }
+    try {
+        // Ambil cart
+        const cartRes = await fetch(`${API_BASE}/get_cart.php`, { credentials: 'include' });
+        const cartData = await cartRes.json();
+        const cart = cartData.cart || [];
 
-      const cart = JSON.parse(stored);
-      const noteInput = document.getElementById('orderNote').value.trim();
-      const finalNote = noteInput 
-        ? `Catatan: ${noteInput}\n\n${deviceInfoEl.innerText}` 
-        : deviceInfoEl.innerText;
+        if (cart.length === 0) {
+            alert('Keranjang kosong!');
+            return;
+        }
 
-      const payload = {
-        cart: cart,
-        customer_name: document.getElementById('buyerName').value,
-        customer_email: document.getElementById('buyerEmail').value,
-        note: finalNote,
-        payment_method: document.querySelector('input[name="payment"]:checked').value
-      };
+        // Hitung total
+        let total = 0;
+        cart.forEach(item => total += item.price * item.qty);
 
-      try {
-        const response = await fetch(`${API_BASE}/checkout.php`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          credentials: 'include'
+        // Payload
+        const payload = {
+            customer_name: document.getElementById('buyerName').value,
+            customer_email: document.getElementById('buyerEmail').value,
+            note: document.getElementById('note').value || '',
+            payment_method: document.querySelector('input[name="payment"]:checked').value,
+            cart: cart
+        };
+
+        console.log('Mengirim payload:', payload);
+
+        // Kirim ke checkout.php
+        const res = await fetch(`${API_BASE}/checkout.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            credentials: 'include'
         });
 
-        const result = await response.json();
+        const result = await res.json();
+        console.log('Response:', result);
 
         if (result.success) {
-          alert('Pesanan berhasil! Kami akan hubungi Anda via WhatsApp/Email.');
-          sessionStorage.removeItem('checkoutItems');
-          window.location.href = 'success.html';
+            // Simpan ke localStorage
+            localStorage.setItem('currentOrder', JSON.stringify({
+                orderId: result.order.orderId,
+                amount: result.order.amount,
+                timestamp: result.order.timestamp
+            }));
+            window.location.href = 'payment.html';
         } else {
-          alert('Gagal checkout: ' + (result.error || 'Unknown error'));
+            alert('Gagal: ' + (result.message || 'Unknown error'));
         }
-      } catch (err) {
-        alert('Terjadi kesalahan server.');
-        console.error(err);
-      }
+    } catch (err) {
+        console.error('Error:', err);
+        alert('Gagal terhubung ke server. Lihat console (F12).');
     }
+}
 
     document.addEventListener('DOMContentLoaded', () => {
       detectDeviceAndLocation();
