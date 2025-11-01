@@ -7,62 +7,111 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
   <style>
-    body { 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      font-family: 'Segoe UI', sans-serif; 
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
+    :root {
+      --primary: #ff4081;
+      --secondary: #ea719a;
+      --bg-light: #fff8fc;
+      --text-dark: #333;
     }
+
+    body { 
+      background: var(--bg-light);
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header */
+    .navbar {
+      background: var(--primary);
+      padding: 1rem 2rem;
+    }
+    .navbar-brand {
+      font-weight: 700;
+      color: #fff !important;
+      font-size: 1.4rem;
+    }
+    .navbar a {
+      color: #fff !important;
+      margin-right: 1rem;
+      font-weight: 500;
+    }
+
+    /* Kartu checkout */
     .checkout-card { 
-      max-width: 900px; 
+      max-width: 950px; 
       margin: 2rem auto; 
       background: white; 
-      border-radius: 20px; 
+      border-radius: 16px; 
       overflow: hidden; 
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
+
     .checkout-header { 
-      background: linear-gradient(135deg, #ff6b6b, #ee5a52); 
+      background: linear-gradient(135deg, var(--primary), var(--secondary)); 
       color: white; 
       padding: 2rem; 
       text-align: center;
     }
     .checkout-header h3 { font-weight: 700; margin: 0; }
+
     .checkout-body { padding: 2rem; }
+
     .summary-card { 
-      background: #f8f9fa; 
+      background: #fff6fa; 
       border-radius: 15px; 
       padding: 1.5rem; 
       height: 100%;
+      border: 1px solid #ffe3ef;
     }
     .summary-item { 
       padding: 0.75rem 0; 
-      border-bottom: 1px dashed #dee2e6; 
+      border-bottom: 1px dashed #ffcce0; 
     }
     .summary-item:last-child { border: 0; }
+
     .total-price { 
-      font-size: 1.6rem; 
+      font-size: 1.5rem; 
       font-weight: 800; 
-      color: #d63384; 
+      color: var(--primary); 
     }
+
     .btn-pay { 
-      background: linear-gradient(135deg, #28a745, #20c997); 
+      background: linear-gradient(135deg, var(--primary), var(--secondary)); 
       color: white; 
-      font-weight: bold; 
-      padding: 1rem 2.5rem; 
+      font-weight: 600; 
+      padding: 0.9rem 2rem; 
       border-radius: 50px; 
       border: none;
-      font-size: 1.1rem;
-      transition: all 0.3s;
+      width: 100%;
+      transition: all 0.3s ease;
     }
     .btn-pay:hover { 
-      transform: translateY(-3px); 
-      box-shadow: 0 10px 20px rgba(40,167,69,0.3);
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255,0,112,0.3);
     }
-    .form-label { font-weight: 600; color: #333; }
+
+    .form-label { font-weight: 600; color: #444; }
     .form-control, .form-check-input { border-radius: 10px; }
-    .device-info { font-size: 0.9rem; color: #6c757d; background: #e9ecef; padding: 0.5rem 1rem; border-radius: 8px; }
+    .device-info { 
+      font-size: 0.9rem; 
+      color: #6c757d; 
+      background: #fce9f3; 
+      padding: 0.6rem 1rem; 
+      border-radius: 8px; 
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: var(--primary);
+      color: #fff;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+    }
+
     @media (max-width: 768px) {
       .checkout-card { margin: 1rem; }
       .summary-card { margin-top: 1.5rem; }
@@ -71,77 +120,94 @@
 </head>
 <body>
 
+
+  <!-- ISI CHECKOUT -->
   <div class="checkout-card">
     <div class="checkout-header">
       <h3>Checkout</h3>
       <p class="mb-0">Selesaikan pembelian akun premium Anda</p>
     </div>
 
-    <div class="checkout-body">
-      <div class="row g-4">
-        <!-- Form Pembeli -->
-        <div class="col-lg-7">
-          <h5 class="mb-3">Informasi Pembeli</h5>
-          <form id="checkoutForm">
-            <div class="mb-3">
-              <label class="form-label">Nama Lengkap</label>
-              <input type="text" class="form-control" id="buyerName" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" id="buyerEmail" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Nomor HP (WhatsApp)</label>
-              <input type="tel" class="form-control" id="buyerPhone" placeholder="628123456789" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Device & Lokasi</label>
-              <div class="device-info" id="deviceInfo">
-                Mendeteksi...
-              </div>
-            </div>
+<div class="checkout-body">
+  <div class="row g-4">
+    <!-- Kolom kiri: form -->
+    <div class="col-lg-7">
+      <div class="d-flex align-items-center mb-3">
+        <i class="bi bi-person-circle fs-4 me-2" style="color:#d63384;"></i>
+        <h5 class="mb-0 fw-semibold">Informasi Pembeli</h5>
+      </div>
 
-            <h5 class="mt-4 mb-3">Metode Pembayaran</h5>
-            <div class="row g-3">
-              <div class="col-6">
-                <div class="form-check p-3 border rounded bg-light text-center">
-                  <input class="form-check-input" type="radio" name="payment" value="QRIS" id="qris" checked>
-                  <label class="form-check-label d-block mt-2" for="qris">
-                    <strong>QRIS</strong>
-                  </label>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="form-check p-3 border rounded bg-light text-center">
-                  <input class="form-check-input" type="radio" name="payment" value="Transfer Bank" id="bank">
-                  <label class="form-check-label d-block mt-2" for="bank">
-                    <strong>Transfer Bank</strong>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </form>
+      <form id="checkoutForm">
+        <div class="mb-3">
+          <label class="form-label">Nama Lengkap</label>
+          <input type="text" class="form-control" id="buyerName" placeholder="Masukkan nama anda" required />
         </div>
-
-        <!-- Ringkasan Pesanan -->
-        <div class="col-lg-5">
-          <div class="summary-card">
-            <h5 class="mb-3">Ringkasan Pesanan</h5>
-            <div id="orderSummary"></div>
-            <hr class="my-3">
-            <div class="d-flex justify-content-between total-price">
-              <span>Total:</span>
-              <span id="totalAmount">Rp0</span>
-            </div>
-            <button class="btn btn-pay w-100 mt-4" onclick="processCheckout()">
-              Bayar Sekarang
-            </button>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="buyerEmail" placeholder="Masukkan email anda" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nomor HP (WhatsApp)</label>
+          <input type="tel" class="form-control" id="buyerPhone" placeholder="628123456789" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Device & Lokasi</label>
+          <div class="device-info" id="deviceInfo">
+            Mendeteksi...
           </div>
         </div>
+
+        <div class="d-flex align-items-center mt-4 mb-3">
+          <i class="bi bi-credit-card-2-front fs-4 me-2" style="color:#d63384;"></i>
+          <h5 class="mb-0 fw-semibold">Metode Pembayaran</h5>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="form-check p-3 border rounded bg-light text-center">
+              <input class="form-check-input" type="radio" name="payment" value="QRIS" id="qris" checked>
+              <label class="form-check-label d-block mt-2" for="qris">
+                <i class="bi bi-qr-code fs-3" style="color:#d63384;"></i><br>
+                <strong>QRIS</strong>
+              </label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-check p-3 border rounded bg-light text-center">
+              <input class="form-check-input" type="radio" name="payment" value="Transfer Bank" id="bank">
+              <label class="form-check-label d-block mt-2" for="bank">
+                <i class="bi bi-bank2 fs-3 text-primary"></i><br>
+                <strong>Transfer Bank</strong>
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Kolom kanan: ringkasan -->
+    <div class="col-lg-5">
+      <div class="summary-card">
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-receipt fs-4 me-2" style="color:#d63384;"></i>
+          <h5 class="mb-0 fw-semibold">Ringkasan Pesanan</h5>
+        </div>
+        <div id="orderSummary"></div>
+        <hr class="my-3">
+        <div class="d-flex justify-content-between total-price">
+          <span>Total:</span>
+          <span id="totalAmount">Rp0</span>
+        </div>
+        <button class="btn btn-pay mt-4" onclick="processCheckout()">
+          Bayar Sekarang
+        </button>
       </div>
     </div>
   </div>
+</div>
+
+
+  <footer>© 2025 AkunPremium. Semua Hak Dilindungi.</footer>
 
   <script>
     const API_BASE = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
@@ -151,7 +217,7 @@
 
     // Deteksi Device & Lokasi
     function detectDeviceAndLocation() {
-      const device = navigator.userAgent.match(/\((.*?)\)/)[1] || 'Unknown Device';
+      const device = navigator.userAgent.match(/\((.*?)\)/)?.[1] || 'Unknown Device';
       const browser = navigator.userAgent.split(' ').pop();
       
       if (navigator.geolocation) {
@@ -177,7 +243,7 @@
       }
     }
 
-    // Load cart dari DB
+    // Load cart
     async function loadCart() {
       try {
         const res = await fetch(`${API_BASE}/get_cart.php`, { credentials: 'include' });
@@ -262,7 +328,6 @@
       }
     }
 
-    // Jalankan saat load
     document.addEventListener('DOMContentLoaded', () => {
       detectDeviceAndLocation();
       loadCart();

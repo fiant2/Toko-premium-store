@@ -1,0 +1,9 @@
+[2025-10-31 13:58:42] START
+[2025-10-31 13:58:42] session user_id: 5
+[2025-10-31 13:58:42] RAW: {"cart":[{"product_id":"2","product_name":"Viu Premium","price":35000,"qty":1}]}
+[2025-10-31 14:03:29] START
+[2025-10-31 14:03:29] session user_id: 5
+[2025-10-31 14:03:29] RAW: {"cart":[{"product_id":"2","product_name":"Viu Premium","price":35000,"qty":1}]}
+[2025-10-31 14:14:09] START
+[2025-10-31 14:14:09] session user_id: 5
+[2025-10-31 14:14:09] RAW: {"cart":[{"product_id":"2","product_name":"Viu Premium","price":35000,"qty":1}]}
