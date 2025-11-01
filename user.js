@@ -135,44 +135,43 @@ const response = await fetch(`${API_BASE_URL}/add_to_cart.php`, {
       btn.addEventListener('click', handleAddToCartClick);
     });
   }
+   
+// 🛒 Handle klik "Beli Sekarang"
+async function handleCheckoutNowClick(e) {
+  const card = e.target.closest('.product-card');
+  const id = card.dataset.productId;
+  const name = card.querySelector('.product-name').textContent.trim();
+  const price = parseFloat(card.querySelector('.product-price').textContent.replace(/[^0-9]/g, ''));
 
-  // 💳 Beli Sekarang
-  async function handleCheckoutNowClick(e) {
-    const btn = e.currentTarget;
-    const id = btn.dataset.id;
-    const name = btn.dataset.name;
-    const price = btn.dataset.price;
-
-    try {
-      const fd = new FormData();
-      fd.append('id', id);
-      fd.append('qty', 1);
-
-      const res = await fetch(`${API_BASE_URL}/checkout_now.php`, {
-        method: 'POST',
-        body: fd,
-        credentials: 'include'
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        alert(`${name} berhasil dipesan!`);
-        window.location.href = 'checkout.html';
-      } else {
-        alert('Gagal melakukan checkout.');
-      }
-    } catch (err) {
-      console.error('Error checkout:', err);
-      alert('Terjadi kesalahan saat checkout.');
-    }
-  }
-
-  function attachCheckoutListeners() {
-    document.querySelectorAll('.checkout-now').forEach(btn => {
-      btn.removeEventListener('click', handleCheckoutNowClick);
-      btn.addEventListener('click', handleCheckoutNowClick);
+  try {
+    const res = await fetch(`${API_BASE_URL}/buy_now.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_id: id, product_name: name, price: price, qty: 1 }),
+      credentials: 'include'
     });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // alert(`${name} siap untuk checkout!`); // Opsional: Hapus jika tidak ingin alert
+      window.location.href = 'checkout.html';  // Redirect langsung ke checkout
+    } else {
+      alert('Gagal memproses beli sekarang: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error('Error buy now:', err);
+    alert('Terjadi kesalahan saat beli sekarang.');
   }
+}
+
+// Attach listener (sudah ada, tapi pastikan dipanggil)
+function attachCheckoutListeners() {
+  document.querySelectorAll('.checkout-now').forEach(btn => {
+    btn.removeEventListener('click', handleCheckoutNowClick);
+    btn.addEventListener('click', handleCheckoutNowClick);
+  });
+}
 
   // 💬 Testimoni
   async function fetchAndRenderReviews() {
