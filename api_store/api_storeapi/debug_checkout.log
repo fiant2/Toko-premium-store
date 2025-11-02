@@ -7,3 +7,11 @@
 [2025-10-31 14:14:09] START
 [2025-10-31 14:14:09] session user_id: 5
 [2025-10-31 14:14:09] RAW: {"cart":[{"product_id":"2","product_name":"Viu Premium","price":35000,"qty":1}]}
+2025-11-02 12:08:46 - Start checkout
+Koneksi DB: Berhasil
+Total: 60000, Products: Netfliix Premium (x1), Spotify (x1)
+Checkout berhasil: INV20251102391
+2025-11-02 12:11:06 - Start checkout
+Koneksi DB: Berhasil
+Total: 65000, Products: Viu Premium (x1), Netfliix Premium (x1)
+Checkout berhasil: INV20251102875

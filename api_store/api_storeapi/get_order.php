@@ -7,12 +7,12 @@ header('Access-Control-Allow-Credentials: true');
 
 require_once 'db_config.php';
 
-if (!isset($_SESSION['customer_id'])) {
+if (!isset($_SESSION['user_id'])) {  // Diubah dari $_SESSION['customer_id']
     echo json_encode(['success' => false, 'message' => 'Belum login']);
     exit;
 }
 
-$customer_id = $_SESSION['customer_id'];
+$customer_id = $_SESSION['user_id'];  // Diubah dari $_SESSION['customer_id']
 
 // Ambil order terakhir (atau sesuai logika)
 $stmt = $conn->prepare("

@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $action = $_GET['action'] ?? '';
 
-$mysqli = new mysqli("localhost", "root", "", "db_toko"); // ganti db_toko
+$mysqli = new mysqli("localhost", "root", "", "premium_store"); // ganti db_toko
 
 if ($action == 'add') {
     $name = $_POST['name'] ?? '';
