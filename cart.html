@@ -248,24 +248,31 @@
   };
 
   document.getElementById('checkoutBtn').onclick = () => {
-    const selected = document.querySelectorAll('.select-item:checked');
-    if (selected.length === 0) {
-      return alert('Pilih minimal 1 item untuk checkout!');
-    }
+  const selected = Array.from(document.querySelectorAll('.select-item:checked'));
+  if (selected.length === 0) {
+    alert('Pilih minimal 1 item untuk checkout!');
+    return;
+  }
 
-    const checkoutItems = Array.from(selected).map(cb => {
-      const itemDiv = cb.closest('.cart-item');
-      return {
-        product_id: cb.dataset.id,
-        product_name: itemDiv.querySelector('h5').textContent.trim(),
-        price: parseInt(cb.dataset.price),
-        qty: parseInt(cb.dataset.qty)
-      };
-    });
+  // Ambil detail item yang dipilih
+  const checkoutItems = selected.map(cb => {
+    const product_id = parseInt(cb.getAttribute('data-id'));
+    const product_name = cb.closest('.cart-item').querySelector('h5').textContent.trim();
+    const price = parseInt(cb.getAttribute('data-price'));
+    const qty = parseInt(cb.getAttribute('data-qty'));
 
-    sessionStorage.setItem('checkoutItems', JSON.stringify(checkoutItems));
-    window.location.href = 'checkout.html';
-  };
+    return { product_id, product_name, price, qty };
+  });
+
+  // Simpan hanya yang dipilih
+  sessionStorage.setItem('checkoutItems', JSON.stringify(checkoutItems));
+
+  console.log("Item terpilih:", checkoutItems); // debug di console
+
+  // Redirect ke halaman checkout
+  window.location.href = 'checkout.html';
+};
+
 
   window.onload = loadCart;
 </script>

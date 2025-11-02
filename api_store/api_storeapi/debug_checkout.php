@@ -15,3 +15,11 @@ Checkout berhasil: INV20251102391
 Koneksi DB: Berhasil
 Total: 65000, Products: Viu Premium (x1), Netfliix Premium (x1)
 Checkout berhasil: INV20251102875
+2025-11-02 12:23:46 - Start checkout
+Koneksi DB: Berhasil
+Total: 160000, Products: Viu Premium (x2), Netfliix Premium (x1), Spotify (x2)
+Checkout berhasil: INV20251102635
+2025-11-02 14:05:31 - Start checkout
+Koneksi DB: Berhasil
+Total: 65000, Products: Viu Premium (x1), Netfliix Premium (x1)
+Checkout berhasil: INV20251102152
