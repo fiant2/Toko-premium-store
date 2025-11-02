@@ -133,24 +133,64 @@
         </div>
     </section>
 
-    <section class="testimonials" id="testimonials">
-        <h2 class="section-title">Testimoni Pelanggan</h2>
-        <div class="testimonials-grid" id="testimonialsGrid">
-            <p>Memuat ulasan pelanggan...</p>
+ <section class="testimonials" id="testimonials">
+  <h2 class="section-title">Testimoni Pelanggan</h2>
+  <div class="testimonials-grid" id="testimonialsGrid">
+    <p style="text-align:center;color:#ccc;">Memuat testimoni...</p>
+  </div>
+
+  <!-- NOTICE: Belum checkout -->
+  <div id="reviewNotice" class="alert alert-warning" style="display:none; margin:2rem auto; max-width:500px; padding:1rem; background:#fff3cd; border:1px solid #ffeaa7; border-radius:12px; text-align:center;">
+    Selesaikan pembelian terlebih dahulu untuk memberi ulasan!
+  </div>
+
+  <!-- FORM REVIEW: Hanya muncul setelah checkout -->
+  <div id="reviewFormContainer" style="display:none; margin:2rem auto; max-width:500px;">
+    <div class="card" style="padding:2rem; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.1); background:#fff;">
+      <h3 style="margin-top:0; color:#ff4081; text-align:center;">Tulis Ulasan Anda</h3>
+      <form id="reviewForm">
+        <div style="margin-bottom:1rem; text-align:center;">
+          <div class="rating-stars"></div>
         </div>
-        
-        <div class="card review-form-container">
-            <h3>Tulis Ulasan Anda</h3>
-            <p>Anda hanya bisa memberikan ulasan setelah pembelian produk selesai dan disetujui Admin.</p>
-            <form id="reviewForm" data-product-id="P_SPOTIFY_123"> 
-                <div class="form-group">
-                    <label class="form-label">Ulasan Anda</label>
-                    <textarea class="form-textarea" id="reviewText" placeholder="Tulis ulasan Anda di sini..." required></textarea>
+        <div style="margin-bottom:1rem;">
+          <textarea id="reviewText" placeholder="Ceritakan pengalamanmu..." required maxlength="500" style="width:100%; min-height:120px; padding:12px; border:2px solid #ffe4e6; border-radius:12px; font-family:inherit; resize:vertical;"></textarea>
+        </div>
+        <button type="submit" style="width:100%; background:#ff4081; color:white; padding:12px; border:none; border-radius:50px; font-weight:600; cursor:pointer;">Kirim Ulasan</button>
+      </form>
+      <div id="reviewSuccess" class="alert alert-success" style="display:none; margin-top:1rem; padding:12px; background:#d4edda; color:#155724; border-radius:8px; text-align:center;">
+        Ulasan terkirim! Menunggu persetujuan admin.
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- Notice & Form -->
+    <div id="reviewNotice" class="alert alert-warning" style="display:none; margin: 20px auto; max-width: 500px;">
+        🛒 Anda perlu **menyelesaikan pembelian** terlebih dahulu untuk beri ulasan!
+    </div>
+    
+    <div class="card review-form-container" id="reviewFormContainer" style="display:none;">
+        <h3>✨ Tulis Ulasan Anda</h3>
+        <form id="reviewForm">
+            <div class="form-group">
+                <label>Rating:</label>
+                <div class="rating-stars">
+                    <input type="radio" id="star5" name="rating" value="5" checked><label for="star5" title="5 stars">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
                 </div>
-                <button type="submit" class="btn btn-primary">Kirim Ulasan</button>
-            </form>
-        </div>
-    </section>
+            </div>
+            <div class="form-group">
+                <label>Ulasan Anda:</label>
+                <textarea class="form-textarea" id="reviewText" placeholder="Ceritain pengalamanmu yuk! 😍" required maxlength="500"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">🚀 Kirim Ulasan</button>
+        </form>
+        <div id="reviewSuccess" class="alert alert-success" style="display:none;">Ulasan berhasil dikirim! ⭐</div>
+    </div>
+</section>
 
 <section id="faq" class="content-section">
     <h2>❓ Pertanyaan yang Sering Diajukan (FAQ)</h2>

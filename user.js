@@ -2,27 +2,92 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
 
-  // Cek status checkout (opsional)
-  async function checkOrderStatus() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/check_order.php`, { credentials: 'include' });
-      const data = await response.json();
-      const form = document.getElementById('reviewForm');
-      const notice = document.getElementById('reviewNotice');
+  // === 1. CEK STATUS CHECKOUT & TAMPILKAN FORM REVIEW ===
+  async function checkReviewEligibility() {
+    const reviewFormContainer = document.getElementById('reviewFormContainer');
+    const reviewNotice = document.getElementById('reviewNotice');
 
-      if (!data.success) {
-        form && (form.style.display = 'none');
-        notice && (notice.style.display = 'block');
+    if (!reviewFormContainer && !reviewNotice) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/check_review_eligibility.php`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const data = await response.json();
+
+      if (data.can_review && data.product_id) {
+        // Sembunyikan notice, tampilkan form
+        if (reviewNotice) reviewNotice.style.display = 'none';
+        if (reviewFormContainer) {
+          reviewFormContainer.style.display = 'block';
+          // Simpan product_id di form
+          const form = document.getElementById('reviewForm');
+          if (form) form.dataset.productId = data.product_id;
+        }
       } else {
-        form && (form.style.display = 'block');
-        notice && (notice.style.display = 'none');
+        if (reviewNotice) reviewNotice.style.display = 'block';
+        if (reviewFormContainer) reviewFormContainer.style.display = 'none';
       }
-    } catch (error) {
-      console.error('Gagal cek status checkout:', error);
+    } catch (err) {
+      console.error('Gagal cek kelayakan review:', err);
+      if (reviewNotice) reviewNotice.style.display = 'block';
+      if (reviewFormContainer) reviewFormContainer.style.display = 'none';
     }
   }
 
-  // Load jumlah item di keranjang
+  // === 2. SUBMIT REVIEW ===
+  const reviewForm = document.getElementById('reviewForm');
+  if (reviewForm) {
+    reviewForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const ratingInputs = document.querySelectorAll('input[name="rating"]');
+      const rating = Array.from(ratingInputs).find(i => i.checked)?.value;
+      const comment = document.getElementById('reviewText').value.trim();
+      const product_id = reviewForm.dataset.productId;
+
+      if (!rating) {
+        alert('Pilih rating terlebih dahulu!');
+        return;
+      }
+      if (!comment) {
+        alert('Tulis ulasan terlebih dahulu!');
+        return;
+      }
+
+      const formData = new URLSearchParams();
+      formData.append('rating', rating);
+      formData.append('comment', comment);
+      formData.append('product_id', product_id);
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/review.php`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+
+        const result = await response.json();
+
+        const successMsg = document.getElementById('reviewSuccess');
+        if (result.success) {
+          successMsg.style.display = 'block';
+          reviewForm.reset();
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        } else {
+          alert(result.message || 'Gagal mengirim ulasan');
+        }
+      } catch (err) {
+        console.error('Error submit review:', err);
+        alert('Terjadi kesalahan jaringan');
+      }
+    });
+  }
+
+  // === 3. LOAD JUMLAH KERANJANG ===
   function loadCartCountFromDB() {
     fetch(`${API_BASE_URL}/get_cart.php`, { credentials: 'include' })
       .then(r => r.json())
@@ -35,15 +100,10 @@ document.addEventListener('DOMContentLoaded', function () {
           cartCountEl.style.display = totalItems > 0 ? 'inline' : 'none';
         }
       })
-      .catch(err => console.error('Error loading cart count:', err)); // <-- DIPERBAIKI: catch di sini
+      .catch(err => console.error('Error loading cart count:', err));
   }
 
-  // Simulasi user login (sementara)
-  function getLoggedInUserId() {
-    return 'USER-TEST-1'; // nanti diganti session
-  }
-
-  // Generate tampilan produk
+  // === 4. RENDER PRODUK ===
   function generateProductCardHTML(product) {
     return `
       <div class="product-card" data-product-id="${product.id}">
@@ -63,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
   }
 
-  // Ambil & render produk
   async function fetchAndRenderProducts() {
     const productsGrid = document.getElementById('productsGrid');
     if (!productsGrid) return;
@@ -92,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Tambah ke Keranjang
+  // === 5. TAMBAH KE KERANJANG ===
   async function handleAddToCartClick(e) {
     const btn = e.currentTarget;
     const name = btn.dataset.name;
@@ -133,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // BELI SEKARANG → LANGSUNG KE CHECKOUT (1 ITEM SAJA)
+  // === 6. BELI SEKARANG ===
   function handleCheckoutNowClick(e) {
     const card = e.target.closest('.product-card');
     const id = card.dataset.productId;
@@ -159,47 +218,95 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Testimoni
+  // === 7. RENDER TESTIMONI ===
   async function fetchAndRenderReviews() {
-    const reviewsGrid = document.getElementById('testimonialsGrid');
-    if (!reviewsGrid) return;
-    reviewsGrid.innerHTML = '<p>Memuat testimoni...</p>';
+  const reviewsGrid = document.getElementById('testimonialsGrid');
+  if (!reviewsGrid) return;
+  reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;">Memuat testimoni...</p>';
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/reviews.php?status=approved`, { credentials: 'include' });
-      const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE_URL}/reviews.php?status=approved`, { credentials: 'include' });
+    const data = await res.json();
 
-      reviewsGrid.innerHTML = '';
-      if (!data || data.length === 0) {
-        reviewsGrid.innerHTML = '<p>Belum ada testimoni.</p>';
-        return;
-      }
-
-      data.forEach(r => {
-        reviewsGrid.insertAdjacentHTML('beforeend', `
-          <div class="testimonial-card">
-            <p class="testimonial-text">"${r.comment}"</p>
-            <div class="testimonial-author">
-              <div class="author-avatar">${r.user_name.charAt(0)}</div>
-              <div class="author-info">
-                <h4>${r.user_name}</h4>
-                <p>Produk: ${r.product_name}</p>
-              </div>
-            </div>
-          </div>
-        `);
-      });
-
-    } catch (err) {
-      console.error('Gagal load testimoni:', err);
-      reviewsGrid.innerHTML = '<p>Gagal memuat testimoni.</p>';
+    reviewsGrid.innerHTML = '';
+    if (!data || data.length === 0) {
+      reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;">Belum ada testimoni.</p>';
+      return;
     }
-  }
 
-  // Jalankan semua fungsi
-  checkOrderStatus();
-  fetchAndRenderProducts();
-  fetchAndRenderReviews();
-  loadCartCountFromDB();
+    // Di dalam fetchAndRenderReviews(), ganti bagian insertAdjacentHTML
+data.forEach((r, index) => {
+  const stars = '★★★★★'.substring(0, r.rating) + '☆☆☆☆☆'.substring(r.rating);
 
+  const bubble = `
+    <div class="review-bubble" data-index="${index}" style="
+      background: linear-gradient(135deg, #ffd1dc, #ffe4e1);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 16px auto;
+      max-width: 420px;
+      box-shadow: 0 6px 16px rgba(255, 105, 180, 0.18);
+      border: 1.5px solid #ff99bb;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease-out ${index * 0.2}s both;
+      font-family: 'Poppins', sans-serif;
+      user-select: none;
+    ">
+      <div style="font-weight: 600; color: #d81b60; font-size: 16px; margin-bottom: 8px;">
+        ${r.user_name}
+      </div>
+      <div style="color: #ffb800; font-size: 19px; margin-bottom: 8px; letter-spacing: 1px;">
+        ${stars}
+      </div>
+      <div style="font-size: 13px; color: #e91e63; margin-bottom: 10px;">
+        Produk: ${r.product_name}
+      </div>
+      <div style="
+        font-style: italic;
+        color: #c2185b;
+        font-size: 15px;
+        line-height: 1.6;
+        position: relative;
+        padding-left: 24px;
+      ">
+        <span style="position: absolute; left: 0; top: -2px; color: #ff4081; font-size: 22px;">“</span>
+        ${r.comment}
+        <span style="color: #ff4081; font-size: 22px; margin-left: 4px;">”</span>
+      </div>
+    </div>
+  `;
+
+  reviewsGrid.insertAdjacentHTML('beforeend', bubble);
 });
+
+    // === TAMBAH EVENT KLIK ===
+    document.querySelectorAll('.review-bubble').forEach(bubble => {
+      bubble.addEventListener('click', function () {
+        if (this.classList.contains('animating')) return;
+        this.classList.add('animating');
+        this.style.animation = 'popRotate 1s ease-out forwards';
+        setTimeout(() => {
+          this.classList.remove('animating');
+          this.style.animation = '';
+        }, 1000);
+      });
+    });
+
+  } catch (err) {
+    console.error('Gagal load testimoni:', err);
+    reviewsGrid.innerHTML = '<p style="text-align:center;color:#ff4081;">Gagal memuat testimoni.</p>';
+  }
+} // ← AKHIR fetchAndRenderReviews()
+
+// === 8. JALANKAN SEMUA ===
+checkReviewEligibility();
+fetchAndRenderProducts();
+fetchAndRenderReviews();
+loadCartCountFromDB();
+
+// Refresh cart count tiap 10 detik
+setInterval(loadCartCountFromDB, 10000);
+
+}); 
