@@ -1,4 +1,4 @@
-# Toko Premium Store
+## Toko Premium Store
 
 Proyek ini dibuat untuk memenuhi tugas mata kuliah E-commerce.
 (2TI01)
