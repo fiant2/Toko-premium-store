@@ -1,84 +1,95 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar - Toko Premium Store</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #ff4081 0%, #ea719a 100%); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
-        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; transition: transform 0.3s; }
-        .container:hover { transform: scale(1.02); }
-        h2 { color: #ff4081; margin-bottom: 30px; }
-        input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; }
-        input:focus { border-color: #ff4081; outline: none; }
-        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #ff4081 0%, #ea719a 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background 0.3s; margin: 10px 0; }
-        button:hover { background: linear-gradient(135deg, #ea719a 0%, #ff4081 100%); }
-        .links { margin-top: 20px; }
-        .links a { color: #ff4081; text-decoration: none; margin: 0 10px; }
-        .links a:hover { text-decoration: underline; }
-        .error { color: red; font-size: 14px; margin-top: 10px; display: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar - Toko Premium Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #ff4081 0%, #ea719a 100%); margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+    .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; transition: transform 0.3s; }
+    .container:hover { transform: scale(1.02); }
+    h2 { color: #ff4081; margin-bottom: 30px; }
+    input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; }
+    input:focus { border-color: #ff4081; outline: none; }
+    button { width: 100%; padding: 12px; background: linear-gradient(135deg, #ff4081 0%, #ea719a 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background 0.3s; margin: 10px 0; }
+    button:hover { background: linear-gradient(135deg, #ea719a 0%, #ff4081 100%); }
+    .links { margin-top: 20px; }
+    .links a { color: #ff4081; text-decoration: none; margin: 0 10px; }
+    .links a:hover { text-decoration: underline; }
+    .error { color: red; font-size: 14px; margin-top: 10px; display: none; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <i class="fas fa-user-plus" style="font-size: 60px; color: #ff4081; margin-bottom: 10px;"></i>
-        <h2>Daftar Akun Baru</h2>
-        <form id="registerForm">
-            <input type="text" id="nama" placeholder="Nama Lengkap" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Kata Sandi" required>
-            <input type="password" id="confirmPassword" placeholder="Konfirmasi Kata Sandi" required>
-            <div id="errorMsg" class="error"></div>
-            <button type="submit"><i class="fas fa-user-plus"></i> Daftar</button>
-        </form>
-        <div class="links">
-            <a href="loginuser.html">Sudah punya akun? Masuk</a>
-            <a href="indexuser.html">Kembali ke Beranda</a>
-        </div>
+<div class="container">
+    <i class="fas fa-user-plus" style="font-size: 60px; color: #ff4081; margin-bottom: 10px;"></i>
+    <h2>Daftar Akun Baru</h2>
+    <form id="registerForm">
+        <input type="text" id="nama" placeholder="Nama Lengkap" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Kata Sandi" required>
+        <input type="password" id="confirmPassword" placeholder="Konfirmasi Kata Sandi" required>
+        <div id="errorMsg" class="error"></div>
+        <button type="submit"><i class="fas fa-user-plus"></i> Daftar</button>
+    </form>
+    <div class="links">
+        <a href="loginuser.html">Sudah punya akun? Masuk</a>
+        <a href="indexuser.html">Kembali ke Beranda</a>
     </div>
+</div>
+
 <script>
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const nama = document.getElementById('nama').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const errorMsg = document.getElementById('errorMsg');
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('nama').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const errorMsg = document.getElementById('errorMsg');
 
-        if (!nama || !email || !password || !confirmPassword) {
-            errorMsg.textContent = 'Semua field harus diisi!';
+    // ✅ REGEX VALIDASI PASSWORD KUAT
+    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!nama || !email || !password || !confirmPassword) {
+        errorMsg.textContent = 'Semua field harus diisi!';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        errorMsg.textContent = 'Kata sandi tidak cocok!';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    if (!strongPassword.test(password)) {
+        errorMsg.textContent = 'Password harus minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan simbol!';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    // Jika lolos validasi, kirim ke server
+    fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/register_process.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: nama, email: email, password: password, status: 'active' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Registrasi berhasil! Silakan login.');
+            window.location.href = 'loginuser.html';
+        } else {
+            errorMsg.textContent = data.message;
             errorMsg.style.display = 'block';
-            return;
         }
-
-        if (password !== confirmPassword) {
-            errorMsg.textContent = 'Kata sandi tidak cocok!';
-            errorMsg.style.display = 'block';
-            return;
-        }
-
-        fetch('http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi/register_process.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: nama, email: email, password: password, status: 'active' })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert('Registrasi berhasil! Silakan login.');
-                window.location.href = 'loginuser.html';  // Redirect ke halaman login
-            } else {
-                errorMsg.textContent = data.message;
-                errorMsg.style.display = 'block';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            errorMsg.textContent = 'Terjadi kesalahan server.';
-            errorMsg.style.display = 'block';
-        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        errorMsg.textContent = 'Terjadi kesalahan server.';
+        errorMsg.style.display = 'block';
     });
+});
 </script>
 </body>
 </html>
