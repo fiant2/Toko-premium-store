@@ -1,13 +1,14 @@
 <?php
-include 'db_config.php';  // Hubungkan ke database
+include 'db_config.php';  
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-    header('Access-Control-Allow-Origin: *');  // Izinkan semua origin (untuk development; batasi di production)
-    header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');  // Izinkan Content-Type
-    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-        exit(0);  // Tangani preflight request
-    }
+
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit(0);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
@@ -21,6 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // ✅ VALIDASI PASSWORD KUAT (minimal 8 karakter, ada huruf besar, kecil, angka, simbol)
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/', $password)) {
+        echo json_encode(['status' => 'error', 'message' => 'Password harus minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan simbol.']);
+        exit;
+    }
+
     // Cek jika email sudah ada
     $stmt = $conn->prepare("SELECT id FROM customers WHERE email = ?");
     $stmt->bind_param('s', $email);
@@ -31,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Hash password
+    // Hash password dengan bcrypt
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     // Simpan ke database
