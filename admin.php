@@ -1,6 +1,14 @@
 <?php
 // admin.php - Entry point untuk dashboard admin
 // Include logika statistik dari file terpisah
+session_start();
+include 'api_store/api_storeapi/db_config.php';  // Pastikan koneksi database
+// Cek apakah admin sudah login
+if (!isset($_SESSION['admin_id'])) {
+    header('Location: admin_login.php');  // Redirect ke login jika belum login
+    exit;
+}
+
 include 'admin_stats.php';
 ?>
 
@@ -26,7 +34,7 @@ include 'admin_stats.php';
                 <li><a href="#"><span class="sidebar-menu-icon">👥</span> Pelanggan</a></li>
                 <li><a href="#"><span class="sidebar-menu-icon">💰</span> Penjualan</a></li>
                 
-                <li><a href="#"><span class="sidebar-menu-icon">🚪</span> Logout</a></li>
+                <li><a href="#" id="logoutBtn"><span class="sidebar-menu-icon">🚪</span> Logout</a></li>
             </ul>
         </aside>
 
@@ -362,7 +370,13 @@ include 'admin_stats.php';
       </div>
     </div>
     
-
+    <script>
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    fetch('admin_logout.php', { method: 'POST' })  // Buat file admin_logout.php
+        .then(() => window.location.href = 'admin_login.php');
+});
+    </script>
     <script src="admin.js"></script>
 </body>
 </html>
