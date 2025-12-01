@@ -783,3 +783,7 @@ footer {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(255,105,180,.3);
 }
+
+.faq-answer {
+    transition: all 0.3s ease;
+}

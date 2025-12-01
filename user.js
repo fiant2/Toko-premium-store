@@ -2,6 +2,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
 
+
+  // === Memunculkan jawaban di FAQ ===
+const faqQuestions = document.querySelectorAll('.faq-question');
+faqQuestions.forEach(question => {
+    question.addEventListener('click', function() {
+        const answer = this.nextElementSibling; // Elemen .faq-answer berikutnya
+        if (answer.style.display === 'none' || answer.style.display === '') {
+            answer.style.display = 'block';
+        } else {
+            answer.style.display = 'none';
+        }
+    });
+});
+
   // === 1. CEK STATUS CHECKOUT & TAMPILKAN FORM REVIEW ===
   async function checkReviewEligibility() {
     const reviewFormContainer = document.getElementById('reviewFormContainer');
