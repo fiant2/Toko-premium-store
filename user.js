@@ -207,7 +207,13 @@ faqQuestions.forEach(question => {
   }
 
   // === 6. BELI SEKARANG ===
-  function handleCheckoutNowClick(e) {
+function handleCheckoutNowClick(e) {
+    if (!window.isLoggedIn) {
+        alert('Silakan login terlebih dahulu untuk melakukan pembelian.');
+        window.location.href = 'loginuser.html';
+        return;
+    }
+
     const card = e.target.closest('.product-card');
     const id = card.dataset.productId;
     const name = card.querySelector('.product-name').textContent.trim();
@@ -215,15 +221,15 @@ faqQuestions.forEach(question => {
     const price = parseFloat(priceText.replace(/[^0-9]/g, ''));
 
     const checkoutItems = [{
-      product_id: id,
-      product_name: name,
-      price: price,
-      qty: 1
+        product_id: id,
+        product_name: name,
+        price: price,
+        qty: 1
     }];
 
     sessionStorage.setItem('checkoutItems', JSON.stringify(checkoutItems));
     window.location.href = 'checkout.html';
-  }
+}
 
   function attachCheckoutListeners() {
     document.querySelectorAll('.checkout-now').forEach(btn => {
