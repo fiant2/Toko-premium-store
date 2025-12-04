@@ -1,118 +1,92 @@
 <?php
-// Debug: Log start
-file_put_contents('debug_checkout.log', date('Y-m-d H:i:s') . ' - Start checkout' . PHP_EOL, FILE_APPEND);
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);  
-// api_store/api_storeapi/checkout.php
-
-// Tambahkan include ini untuk session handler custom
 include 'db_aktivitas_login.php';
+include 'db_config.php';
+include 'midtrans_config.php'; // konfigurasi Midtrans
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json');
+
 
 session_start();
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost');
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Method tidak diizinkan']);
-    exit;
-}
-
-require_once 'db_config.php';
-
-// Debug: Log koneksi
-file_put_contents('debug_checkout.log', 'Koneksi DB: ' . ($conn->connect_error ? 'Gagal - ' . $conn->connect_error : 'Berhasil') . PHP_EOL, FILE_APPEND);
-
-// Pastikan koneksi database berhasil, jika gagal, output JSON error
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Koneksi database gagal: ' . $conn->connect_error]);
-    exit;
-}
-
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Login diperlukan']);
+    echo json_encode(['error' => 'User not logged in']);
     exit;
 }
 
+$user_id = $_SESSION['user_id'];
 $data = json_decode(file_get_contents('php://input'), true);
-if (json_last_error() !== JSON_ERROR_NONE) {
-    echo json_encode(['success' => false, 'message' => 'Data JSON tidak valid']);
+
+if (!$data || !isset($data['cart'])) {
+    echo json_encode(['error' => 'Invalid cart data']);
     exit;
 }
 
-$customer_id = $_SESSION['user_id'];
-$customer_name = $data['customer_name'] ?? '';
-$customer_email = $data['customer_email'] ?? '';
+// Ambil data dari form checkout
+$customer_name = $data['customer_name'] ?? ($_SESSION['user_name'] ?? 'Customer');
+$customer_email = $data['customer_email'] ?? ($_SESSION['user_email'] ?? 'customer@example.com');
+$customer_phone = $data['customer_phone'] ?? ''; // Ambil dari form, fallback kosong
 $note = $data['note'] ?? '';
-$payment_method = $data['payment_method'] ?? 'QRIS';
-$cart = $data['cart'] ?? [];
+$payment_method = $data['payment_method'] ?? 'Midtrans';
 
-if (empty($cart)) {
-    echo json_encode(['success' => false, 'message' => 'Keranjang kosong']);
-    exit;
-}
-
-// Hitung total
-$total = 0.0;
-$product_names = [];
+$cart = $data['cart'];
+$total = 0;
+$item_details = [];
 foreach ($cart as $item) {
-    $total += (float)$item['price'] * (int)$item['qty'];
-    $product_names[] = $item['product_name'] . ' (x' . $item['qty'] . ')';
-}
-$products_string = implode(', ', $product_names);
-
-// Debug: Log data
-file_put_contents('debug_checkout.log', 'Total: ' . $total . ', Products: ' . $products_string . PHP_EOL, FILE_APPEND);
-
-// Simpan ke tabel sales (sesuaikan kolom: total bukan total_amount, tambah products)
-$order_number = 'INV' . date('Ymd') . rand(100, 999);
-$stmt = $conn->prepare("
-    INSERT INTO sales (order_number, customer_id, products, total, payment_method, note, status)
-    VALUES (?, ?, ?, ?, ?, ?, 'pending')
-");
-if (!$stmt) {
-    file_put_contents('debug_checkout.log', 'Prepare gagal: ' . $conn->error . PHP_EOL, FILE_APPEND);
-    echo json_encode(['success' => false, 'message' => 'Prepare statement gagal: ' . $conn->error]);
-    exit;
+    $total += $item['price'] * $item['qty'];
+    $item_details[] = [
+        'id' => (string)$item['product_id'],
+        'price' => (int)$item['price'],
+        'quantity' => (int)$item['qty'],
+        'name' => $item['product_name']
+    ];
 }
 
-// Perbaiki bind_param: s (order_number), i (customer_id), s (products), d (total), s (payment_method), s (note)
-$stmt->bind_param('sisdss', $order_number, $customer_id, $products_string, $total, $payment_method, $note);
-$result = $stmt->execute();
-if (!$result) {
-    file_put_contents('debug_checkout.log', 'Execute gagal: ' . $stmt->error . PHP_EOL, FILE_APPEND);
-    echo json_encode(['success' => false, 'message' => 'Execute gagal: ' . $stmt->error]);
-    exit;
+// Hapus item dari keranjang SEGERA setelah klik "Bayar Sekarang"
+foreach ($cart as $item) {
+    $sql_clear = "DELETE FROM carts WHERE customer_id = ? AND product_id = ?";
+    $stmt_clear = $conn->prepare($sql_clear);
+    $stmt_clear->bind_param('ii', $user_id, $item['product_id']);
+    $stmt_clear->execute();
 }
 
-if ($stmt->affected_rows > 0) {
-    // Kosongkan keranjang
-    $stmt2 = $conn->prepare("DELETE FROM carts WHERE customer_id = ?");
-    if (!$stmt2) {
-        file_put_contents('debug_checkout.log', 'Prepare delete gagal: ' . $conn->error . PHP_EOL, FILE_APPEND);
-        echo json_encode(['success' => false, 'message' => 'Prepare delete gagal: ' . $conn->error]);
-        exit;
-    }
-    $stmt2->bind_param('i', $customer_id);
-    $stmt2->execute();
+// Simpan order ke database (opsional: tambahkan kolom customer_name, customer_email, customer_phone jika ingin simpan detail)
+$order_number = 'ORD-' . time() . rand(100, 999);
+$products_json = json_encode($cart);
+$sql = "INSERT INTO sales (order_number, customer_id, products, total, status, payment_method, note) VALUES (?, ?, ?, ?, 'pending', ?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('sisdss', $order_number, $user_id, $products_json, $total, $payment_method, $note);
+$stmt->execute();
+$order_id = $conn->insert_id;
 
-    file_put_contents('debug_checkout.log', 'Checkout berhasil: ' . $order_number . PHP_EOL, FILE_APPEND);
+// Buat data transaksi Midtrans DENGAN customer_details LENGKAP dari form
+$transaction_data = [
+    'transaction_details' => [
+        'order_id' => $order_number,
+        'gross_amount' => (int)$total
+    ],
+    'customer_details' => [
+        'first_name' => $customer_name,
+        'email' => $customer_email,
+        'phone' => $customer_phone
+    ],
+    'item_details' => $item_details,
+    'enabled_payments' => ['qris', 'credit_card', 'gopay', 'shopeepay', 'permata_va', 'bca_va', 'bni_va', 'bri_va']
+];
+
+// Buat snap token
+$snap_token = createSnapToken($transaction_data);
+
+if ($snap_token) {
     echo json_encode([
         'success' => true,
-        'order' => [
-            'orderId' => $order_number,
-            'amount' => $total,
-            'timestamp' => time() * 1000
-        ]
+        'order_id' => $order_id,
+        'snap_token' => $snap_token
     ]);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Gagal simpan pesanan']);
+    echo json_encode(['error' => 'Failed to create Midtrans transaction']);
 }
 
-$stmt->close();
-$stmt2->close();
-$conn->close();
+
 ?>
