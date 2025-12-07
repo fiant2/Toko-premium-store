@@ -1,8 +1,15 @@
 <?php
 
+// 1. PASTIKAN SEMUA FUNGSI ENV TERSEDIA
+require_once 'env_loader.php';
+// 2. MUAT SEMUA VARIABEL DARI .env KE $_ENV
+loadEnv(__DIR__ . '/.env'); 
+
+// 3. SEKARANG INCLUDE FILE YANG MENGGUNAKAN VARIABEL ENV
 include 'db_aktivitas_login.php';
-include 'db_config.php';
-include 'midtrans_config.php'; // konfigurasi Midtrans
+include 'db_config.php';       // Ini akan menggunakan DB_* dari $_ENV
+include 'midtrans_config.php';
+header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');

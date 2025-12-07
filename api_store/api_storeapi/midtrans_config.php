@@ -1,8 +1,8 @@
 <?php
 // Konfigurasi Midtrans (key Sandbox Anda)
-$server_key = 'YOUR_SANDBOX_SERVER_KEY'; // Ganti dengan key asli saat production
-$client_key = 'Mid-client-Uf5BiHqvyUg57nvd'; // Client Key Sandbox
-$is_production = false; // false = Sandbox, true = Production
+$server_key = $_ENV['MIDTRANS_SERVER_KEY'] ?? 'YOUR_SANDBOX_SERVER_KEY'; // Fallback jika .env tidak ada
+$client_key = $_ENV['MIDTRANS_CLIENT_KEY'] ?? 'YOUR_SANDBOX_CLIENT_KEY';
+$is_production = ($_ENV['MIDTRANS_IS_PRODUCTION'] ?? 'false') === 'true';
 $midtrans_url = $is_production ? 'https://api.midtrans.com/snap/v1/transactions' : 'https://api.sandbox.midtrans.com/snap/v1/transactions';
 
 // Fungsi untuk membuat Snap Token dengan cURL
@@ -29,8 +29,7 @@ function createSnapToken($transaction_data) {
     curl_close($ch);
     
     // Debugging: Log ke file (hapus setelah fix)
-    file_put_contents('midtrans_debug.log', "HTTP Code: $http_code\nResponse: $response\nError: $error\nData: $json_data\n\n", FILE_APPEND);
-    
+    file_put_contents('midtrans_debug.log', "HTTP Code: $http_code\nResponse: $response\nError: $error\nServer Key Used: $server_key\nData: $json_data\n\n", FILE_APPEND);
     if ($http_code == 201) {
         $result = json_decode($response, true);
         return $result['token'] ?? null; // Snap token

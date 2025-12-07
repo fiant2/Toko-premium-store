@@ -1,4 +1,5 @@
 <?php
+require_once 'env_loader.php';
 // db_config.php - Konfigurasi Database
 $servername = "localhost";
 $username = "root"; // Username default 

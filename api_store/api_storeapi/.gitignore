@@ -1,0 +1,15 @@
+# File kredensial dan sensitif
+.env
+.env.local
+.env.production
+
+# Log dan cache
+*.log
+midtrans_debug.log  # Dari kode kamu
+
+# Folder vendor/library jika ada (misal jika pakai Composer)
+vendor/
+
+# File sistem operasi
+.DS_Store
+Thumbs.db
