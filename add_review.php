@@ -2,7 +2,7 @@ add rreview
 <?php
 header('Content-Type: application/json');
 session_start();
-include 'config.php'; // PDO connection
+include 'db_config.php'; // PDO connection
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Login dulu!']);
