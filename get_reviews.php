@@ -10,11 +10,11 @@ if ($conn->connect_error) {
 }
 
 // Ambil hanya testimoni yang disetujui (approved)
-$sql = "SELECT r.id, r.user_name, r.comment, r.review_date, p.name AS product_name
-        FROM reviews r
-        JOIN products p ON r.product_id = p.id
-        WHERE r.status = 'approved'
-        ORDER BY r.review_date DESC";
+$sql = "SELECT r.id, r.user_name, r.comment, p.name AS product_name
+    FROM reviews r
+    JOIN products p ON r.product_id = p.id
+    WHERE r.status = 'approved'
+    ORDER BY r.id DESC";
 $result = $conn->query($sql);
 
 $data = [];

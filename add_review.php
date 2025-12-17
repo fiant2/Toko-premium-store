@@ -1,5 +1,6 @@
-add rreview
+
 <?php
+
 header('Content-Type: application/json');
 session_start();
 include 'db_config.php'; // PDO connection
@@ -17,6 +18,15 @@ $user_name = $_SESSION['user_name'] ?? 'User';
 
 if (empty($comment) || $rating < 1 || $rating > 5) {
     echo json_encode(['success' => false, 'message' => 'Isi ulasan & rating valid!']);
+    exit;
+}
+
+// Prevent duplicate review by same user for same product
+$dup = $pdo->prepare("SELECT COUNT(*) as cnt FROM reviews WHERE product_id = ? AND user_name = ?");
+$dup->execute([$product_id, $user_name]);
+$cntRow = $dup->fetch(PDO::FETCH_ASSOC);
+if ($cntRow && $cntRow['cnt'] > 0) {
+    echo json_encode(['success' => false, 'message' => 'Anda sudah mengulas produk ini sebelumnya.']);
     exit;
 }
 
