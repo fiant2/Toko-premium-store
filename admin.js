@@ -255,10 +255,11 @@ function handleEditProduct() {
         if (!confirm(`Yakin ingin ${status === 'approved' ? 'menyetujui' : 'menolak'} ulasan ini?`)) return;
 
         // GANTI: Menggunakan fetch PUT ke reviews.php/{id}/status
-        fetch(`${API_BASE_URL}/reviews.php/${reviewId}/status`, {
+        fetch(`${API_BASE_URL}/reviews.php`, {
             method: 'PUT',
+            credentials: 'include',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ status: status })
+            body: JSON.stringify({ id: reviewId, status: status })
         })
         .then(response => {
             if (response.ok) {
