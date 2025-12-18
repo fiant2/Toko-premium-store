@@ -261,12 +261,15 @@ function handleEditProduct() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ id: reviewId, status: status })
         })
-        .then(response => {
-            if (response.ok) {
+        .then(async response => {
+            const data = await response.json().catch(() => null);
+            if (response.ok && data && data.success) {
                 alert(`Status ulasan ID ${reviewId} diubah menjadi ${status}.`);
-                loadPendingReviews(); 
+                loadPendingReviews();
             } else {
-                alert('Gagal mengubah status ulasan.');
+                const msg = data && data.message ? data.message : 'Gagal mengubah status ulasan.';
+                alert(`Gagal: ${msg}`);
+                console.error('Update failed', response.status, data);
             }
         })
         .catch(error => console.error('Error update review status:', error));

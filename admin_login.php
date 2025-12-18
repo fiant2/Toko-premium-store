@@ -1,4 +1,6 @@
 <?php
+// Use DB-backed session handler for consistency with API
+require_once 'api_store/api_storeapi/db_aktivitas_login.php';
 session_start();
 include 'api_store/api_storeapi/db_config.php';  // Koneksi database
 

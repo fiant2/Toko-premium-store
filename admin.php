@@ -1,6 +1,8 @@
 <?php
 // admin.php - Entry point untuk dashboard admin
 // Include logika statistik dari file terpisah
+// Use DB-backed session handler so API can read admin session
+require_once 'api_store/api_storeapi/db_aktivitas_login.php';
 session_start();
 include 'api_store/api_storeapi/db_config.php';  // Pastikan koneksi database
 // Cek apakah admin sudah login
