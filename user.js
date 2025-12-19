@@ -1,3 +1,4 @@
+// @ts-nocheck
 document.addEventListener('DOMContentLoaded', function () {
 
   const API_BASE_URL = 'http://localhost/Semester%203/Toko%20premium%20store/api_store/api_storeapi';
@@ -344,26 +345,27 @@ function handleCheckoutNowClick(e) {
   }
 
   // === 7. RENDER TESTIMONI ===
-    async function fetchAndRenderReviews() {
-    const reviewsGrid = document.getElementById('testimonialsGrid');
-    if (!reviewsGrid) return;
+   // === RENDER TESTIMONI (CAROUSEL HORIZONTAL KECIL + RATA TENGAH + ANIMASI KREATIF) ===
+async function fetchAndRenderReviews() {
+  const reviewsGrid = document.getElementById('testimonialsGrid');
+  if (!reviewsGrid) return;
 
-     reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;margin:60px 0;">Memuat testimoni...</p>';
+  reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;margin:100px 0;">Memuat testimoni...</p>';
 
-    try {
+  try {
     const res = await fetch(`${API_BASE_URL}/reviews.php?status=approved`, { credentials: 'include' });
     const data = await res.json();
 
     if (!data || data.length === 0) {
-      reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;margin:60px 0;">Belum ada testimoni yang disetujui.</p>';
+      reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;margin:100px 0;">Belum ada testimoni yang disetujui.</p>';
       return;
     }
 
     reviewsGrid.innerHTML = `
-      <div class="testimonials-carousel">
-        <button class="arrow-btn prev" id="prevBtn">❮</button>
+      <div class="testimonials-carousel-container">
+        <button class="carousel-arrow prev" id="prevBtn">‹</button>
         <div class="testimonials-track" id="track"></div>
-        <button class="arrow-btn next" id="nextBtn">❯</button>
+        <button class="carousel-arrow next" id="nextBtn">›</button>
       </div>
     `;
 
@@ -372,55 +374,57 @@ function handleCheckoutNowClick(e) {
     data.forEach((r, index) => {
       const stars = '★★★★★'.substring(0, r.rating) + '☆☆☆☆☆'.substring(r.rating);
 
-      const card = `
-        <div class="testi-card">
-          <div class="testi-name">${r.user_name}</div>
-          <div class="testi-stars">${stars}</div>
-          <div class="testi-product">Produk: ${r.product_name || 'Produk Tidak Diketahui'}</div>
-          <div class="testi-quote">“ ${r.comment} ”</div>
-        </div>
+      const card = document.createElement('div');
+      card.className = 'testi-card-small';
+      card.innerHTML = `
+        <div class="testi-name">${r.user_name}</div>
+        <div class="testi-stars">${stars}</div>
+        <div class="testi-product">Produk: ${r.product_name || 'Produk Tidak Diketahui'}</div>
+        <div class="testi-quote">“ ${r.comment} ”</div>
       `;
 
-      track.insertAdjacentHTML('beforeend', card);
+      card.style.animationDelay = (index * 0.15) + 's';
+
+      track.appendChild(card);
     });
 
-    // Carousel logic (geser 1 card per klik, smooth)
+    // Carousel smooth (geser 1 card per klik)
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    let index = 0;
-    const cards = track.children;
-    const totalCards = cards.length;
+    let currentIndex = 0;
+    const cards = track.querySelectorAll('.testi-card-small');
+    const cardCount = cards.length;
 
     const updateCarousel = () => {
-      const cardWidth = cards[0].offsetWidth + 30; // lebar card + gap
-      const offset = -index * cardWidth;
-      track.style.transform = `translateX(${offset}px)`;
+      const cardWidth = cards[0].offsetWidth + 40; // lebar + gap
+      const offset = -currentIndex * cardWidth;
+      track.style.transform = `translateX(calc(50% + ${offset}px - 50vw))`; // RATA TENGAH SEMPURNA
     };
 
     nextBtn.onclick = () => {
-      index = (index + 1) % totalCards;
+      currentIndex = (currentIndex + 1) % cardCount;
       updateCarousel();
     };
 
     prevBtn.onclick = () => {
-      index = (index - 1 + totalCards) % totalCards;
+      currentIndex = (currentIndex - 1 + cardCount) % cardCount;
       updateCarousel();
     };
 
     updateCarousel();
     window.addEventListener('resize', updateCarousel);
 
-    // Hover halus
-      document.querySelectorAll('.testi-card').forEach(card => {
-        card.addEventListener('mouseenter', () => {
-          card.style.transform = 'perspective(1000px) translateY(-15px) rotateX(5deg) scale(1.05)';
-          card.style.boxShadow = '0 25px 50px rgba(255,105,180,0.4), 0 0 30px rgba(255,192,203,0.5)';
-        });
-        card.addEventListener('mouseleave', () => {
-          card.style.transform = 'perspective(1000px) translateY(0) rotateX(0) scale(1)';
-          card.style.boxShadow = '0 10px 25px rgba(255,105,180,0.22)';
-        });
+    // Hover kreatif
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', function () {
+        this.style.transform = 'translateY(-12px) scale(1.04)';
+        this.style.boxShadow = '0 20px 40px rgba(255,105,180,0.35)';
       });
+      card.addEventListener('mouseleave', function () {
+        this.style.transform = 'translateY(0) scale(1)';
+        this.style.boxShadow = '0 8px 20px rgba(255,105,180,0.2)';
+      });
+    });
 
   } catch (err) {
     console.error('Gagal load testimoni:', err);
