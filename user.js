@@ -344,80 +344,83 @@ function handleCheckoutNowClick(e) {
   }
 
   // === 7. RENDER TESTIMONI ===
-  async function fetchAndRenderReviews() {
-  const reviewsGrid = document.getElementById('testimonialsGrid');
-  if (!reviewsGrid) return;
-  reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;">Memuat testimoni...</p>';
+    async function fetchAndRenderReviews() {
+    const reviewsGrid = document.getElementById('testimonialsGrid');
+    if (!reviewsGrid) return;
 
-  try {
+     reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;margin:60px 0;">Memuat testimoni...</p>';
+
+    try {
     const res = await fetch(`${API_BASE_URL}/reviews.php?status=approved`, { credentials: 'include' });
     const data = await res.json();
 
-    reviewsGrid.innerHTML = '';
     if (!data || data.length === 0) {
-      reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;">Belum ada testimoni.</p>';
+      reviewsGrid.innerHTML = '<p style="text-align:center;color:#ccc;margin:60px 0;">Belum ada testimoni yang disetujui.</p>';
       return;
     }
 
-    // Di dalam fetchAndRenderReviews(), ganti bagian insertAdjacentHTML
-data.forEach((r, index) => {
-  const stars = '★★★★★'.substring(0, r.rating) + '☆☆☆☆☆'.substring(r.rating);
+    reviewsGrid.innerHTML = `
+      <div class="testimonials-carousel">
+        <button class="arrow-btn prev" id="prevBtn">❮</button>
+        <div class="testimonials-track" id="track"></div>
+        <button class="arrow-btn next" id="nextBtn">❯</button>
+      </div>
+    `;
 
-  const bubble = `
-    <div class="review-bubble" data-index="${index}" style="
-      background: linear-gradient(135deg, #ffd1dc, #ffe4e1);
-      border-radius: 20px;
-      padding: 20px;
-      margin: 16px auto;
-      max-width: 420px;
-      box-shadow: 0 6px 16px rgba(255, 105, 180, 0.18);
-      border: 1.5px solid #ff99bb;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.6s ease-out ${index * 0.2}s both;
-      font-family: 'Poppins', sans-serif;
-      user-select: none;
-    ">
-      <div style="font-weight: 600; color: #d81b60; font-size: 16px; margin-bottom: 8px;">
-        ${r.user_name}
-      </div>
-      <div style="color: #ffb800; font-size: 19px; margin-bottom: 8px; letter-spacing: 1px;">
-        ${stars}
-      </div>
-      <div style="font-size: 13px; color: #e91e63; margin-bottom: 10px;">
-        Produk: ${r.product_name}
-      </div>
-      <div style="
-        font-style: italic;
-        color: #c2185b;
-        font-size: 15px;
-        line-height: 1.6;
-        position: relative;
-        padding-left: 24px;
-      ">
-        <span style="position: absolute; left: 0; top: -2px; color: #ff4081; font-size: 22px;">“</span>
-        ${r.comment}
-        <span style="color: #ff4081; font-size: 22px; margin-left: 4px;">”</span>
-      </div>
-    </div>
-  `;
+    const track = document.getElementById('track');
 
-  reviewsGrid.insertAdjacentHTML('beforeend', bubble);
-});
+    data.forEach((r, index) => {
+      const stars = '★★★★★'.substring(0, r.rating) + '☆☆☆☆☆'.substring(r.rating);
 
-    // === TAMBAH EVENT KLIK ===
-    document.querySelectorAll('.review-bubble').forEach(bubble => {
-      bubble.addEventListener('click', function () {
-        if (this.classList.contains('animating')) return;
-        this.classList.add('animating');
-        this.style.animation = 'popRotate 1s ease-out forwards';
-        setTimeout(() => {
-          this.classList.remove('animating');
-          this.style.animation = '';
-        }, 1000);
-      });
+      const card = `
+        <div class="testi-card">
+          <div class="testi-name">${r.user_name}</div>
+          <div class="testi-stars">${stars}</div>
+          <div class="testi-product">Produk: ${r.product_name || 'Produk Tidak Diketahui'}</div>
+          <div class="testi-quote">“ ${r.comment} ”</div>
+        </div>
+      `;
+
+      track.insertAdjacentHTML('beforeend', card);
     });
+
+    // Carousel logic (geser 1 card per klik, smooth)
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let index = 0;
+    const cards = track.children;
+    const totalCards = cards.length;
+
+    const updateCarousel = () => {
+      const cardWidth = cards[0].offsetWidth + 30; // lebar card + gap
+      const offset = -index * cardWidth;
+      track.style.transform = `translateX(${offset}px)`;
+    };
+
+    nextBtn.onclick = () => {
+      index = (index + 1) % totalCards;
+      updateCarousel();
+    };
+
+    prevBtn.onclick = () => {
+      index = (index - 1 + totalCards) % totalCards;
+      updateCarousel();
+    };
+
+    updateCarousel();
+    window.addEventListener('resize', updateCarousel);
+
+    // Hover halus
+      document.querySelectorAll('.testi-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'perspective(1000px) translateY(-15px) rotateX(5deg) scale(1.05)';
+          card.style.boxShadow = '0 25px 50px rgba(255,105,180,0.4), 0 0 30px rgba(255,192,203,0.5)';
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'perspective(1000px) translateY(0) rotateX(0) scale(1)';
+          card.style.boxShadow = '0 10px 25px rgba(255,105,180,0.22)';
+        });
+      });
 
   } catch (err) {
     console.error('Gagal load testimoni:', err);
