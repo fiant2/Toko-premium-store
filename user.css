@@ -123,7 +123,9 @@ nav li:last-child {
 }
 /* Hero section */
 .hero {
-    background: linear-gradient(135deg, rgba(255, 200, 223, 0.95) 0%, rgba(250, 49, 139, 0.95) 100%), url('https://i.pinimg.com/736x/a3/bc/6d/a3bc6da1d16f3dc0ff041e4d5b40ce80.jpg');
+    background: linear-gradient(135deg, rgba(255, 192, 203, 0.95) 0%, rgba(255, 105, 180, 0.92) 50%, rgba(236, 64, 122, 0.95) 100%);
+    /* Background abstrak pink modern (elegant, digital feel) */
+    background-image: url('https://img.freepik.com/premium-vector/abstract-fluid-background-with-colorful-gradient_747896-4183.jpg');
     background-size: cover;
     background-position: center;
     height: 90vh;
@@ -131,6 +133,7 @@ nav li:last-child {
     display: flex;
     align-items: center;
     padding: 0 5%;
+    position: relative;
 }
 
 .hero-content {
