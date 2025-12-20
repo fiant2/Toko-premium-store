@@ -509,55 +509,85 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// 🔍 PENCARIAN CERDAS (smart search)
+// 🔍 SEARCH ICON TOGGLE
 const searchIcon = document.getElementById('searchIcon');
 const searchInput = document.getElementById('searchInput');
 
-searchIcon.addEventListener('click', function() {
-  if (searchInput.style.display === 'none' || searchInput.style.display === '') {
-    searchInput.style.display = 'block';
-    searchInput.focus();
-  } else {
-    searchInput.style.display = 'none';
-  }
+searchIcon.addEventListener('click', () => {
+  searchInput.style.display =
+    searchInput.style.display === 'block' ? 'none' : 'block';
+  searchInput.focus();
 });
 
-// daftar kata kunci & section tujuannya
-const keywordMap = [
-  { keywords: ['produk', 'netflix', 'spotify', 'youtube', 'disney', 'akun'], target: 'products' },
-  { keywords: ['cara beli', 'pembelian', 'bayar', 'pembayaran', 'belanja'], target: 'how-it-works' },
-  { keywords: ['testimoni', 'ulasan', 'review', 'komentar'], target: 'testimonials' },
-  { keywords: ['faq', 'pertanyaan'], target: 'faq' },
-  { keywords: ['syarat', 'ketentuan'], target: 'terms' },
-  { keywords: ['privasi', 'data', 'kebijakan'], target: 'privacy' },
-  { keywords: ['kontak', 'hubungi', 'wa', 'whatsapp'], target: 'footer' },
-  { keywords: ['beranda', 'home'], target: 'hero' }
-];
+// 🔎 SEARCH PRODUK + SECTION
+searchInput.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter') return;
 
-searchInput.addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    const input = e.target.value.toLowerCase().trim();
-    let matchedSection = null;
+  e.preventDefault();
+  const keyword = this.value.toLowerCase().trim();
 
-    // cari apakah ada kata kunci yang cocok sebagian
-    for (const group of keywordMap) {
-      if (group.keywords.some(keyword => input.includes(keyword))) {
-        matchedSection = group.target;
-        break;
-      }
+  let sectionFound = false;
+  let productFound = false;
+
+  // =========================
+  // 1️⃣ CARI SECTION NAVBAR
+  // =========================
+  const sectionMap = [
+    { id: 'hero', keys: ['beranda', 'home'] },
+    { id: 'products', keys: ['produk', 'product'] },
+    { id: 'how-it-works', keys: ['cara', 'beli', 'pembelian'] },
+    { id: 'testimonials', keys: ['ulasan', 'review', 'testimoni'] },
+    { id: 'faq', keys: ['faq', 'pertanyaan'] },
+    { id: 'terms', keys: ['syarat'] },
+    { id: 'privacy', keys: ['privasi'] },
+    { id: 'footer', keys: ['kontak', 'wa', 'whatsapp'] }
+  ];
+
+  sectionMap.forEach(sec => {
+    if (sec.keys.some(k => keyword.includes(k))) {
+      document
+        .getElementById(sec.id)
+        .scrollIntoView({ behavior: 'smooth' });
+      sectionFound = true;
     }
+  });
 
-    if (matchedSection) {
-      document.getElementById(matchedSection).scrollIntoView({ behavior: 'smooth' });
+  // =========================
+  // 2️⃣ CARI PRODUK
+  // =========================
+  const products = document.querySelectorAll('.product-card');
+
+  products.forEach(product => {
+    const name = product
+      .querySelector('.product-name')
+      .innerText.toLowerCase();
+
+    if (name.includes(keyword)) {
+      product.style.display = 'block';
+      productFound = true;
     } else {
-      alert('Bagian yang kamu cari tidak ditemukan.');
+      // ❗ JANGAN sembunyikan kalau SECTION ketemu
+      product.style.display = sectionFound ? 'block' : 'none';
     }
+  });
 
-    // reset
-    searchInput.style.display = 'none';
-    e.target.value = '';
+  // =========================
+  // 3️⃣ SCROLL JIKA PRODUK ADA
+  // =========================
+  if (productFound) {
+    document
+      .getElementById('products')
+      .scrollIntoView({ behavior: 'smooth' });
   }
+
+  // =========================
+  // 4️⃣ JIKA TIDAK ADA SAMA SEKALI
+  // =========================
+  if (!sectionFound && !productFound) {
+    alert('Halaman atau produk tidak ditemukan.');
+  }
+
+  this.value = '';
 });
 </script>
 </body>
