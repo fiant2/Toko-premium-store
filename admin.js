@@ -280,6 +280,30 @@ function handleEditProduct() {
   // helper escape
   function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  // Format products JSON/text to "id(name)" string. Handles arrays or single object.
+  function formatProducts(productsRaw) {
+    if (!productsRaw) return '-';
+    try {
+      const products = typeof productsRaw === 'string' ? JSON.parse(productsRaw) : productsRaw;
+      if (Array.isArray(products) && products.length > 0) {
+        return products.map(p => {
+          const id = p.product_id ?? p.productId ?? p.id ?? '?';
+          const name = p.product_name ?? p.name ?? ('Produk #' + id);
+          return `${id}(${name})`;
+        }).join(', ');
+      } else if (typeof products === 'object' && products !== null && (products.product_id || products.product_name || products.name)) {
+        const id = products.product_id ?? products.productId ?? products.id ?? '?';
+        const name = products.product_name ?? products.name ?? ('Produk #' + id);
+        return `${id}(${name})`;
+      } else if (typeof products === 'string') {
+        return products;
+      }
+      return '-';
+    } catch (e) {
+      return productsRaw || '-';
+    }
+  }
+
   // sections map
 const sectionsMap = {
   dashboard: document.querySelector('.stats-grid'),
@@ -331,17 +355,8 @@ function loadOrders() {
           minimumFractionDigits: 0
         }).format(totalValue);
 
-        let produkDisplay = '-';
-        try {
-          const products = JSON.parse(order.products);
-          if (Array.isArray(products) && products.length > 0) {
-            produkDisplay = products.map(p => p.name || p.product_id).join(', ');
-          } else if (typeof order.products === 'string') {
-            produkDisplay = order.products;
-          }
-        } catch {
-          produkDisplay = order.products || '-';
-        }
+        // Tampilkan sebagai: id(nama) atau teks bila tidak bisa di-parse
+        let produkDisplay = formatProducts(order.products);
 
         tableBody.insertAdjacentHTML('beforeend', `
           <tr data-id="${order.id}">
@@ -385,14 +400,16 @@ function handleViewOrder() {
         minimumFractionDigits: 0
       }).format(parseFloat(order.total || 0));
 
-      // Parsing produk
+      // Parsing produk menjadi id(nama) — qty — harga
       let produkList = '';
       try {
-        const products = JSON.parse(order.products);
+        const products = typeof order.products === 'string' ? JSON.parse(order.products) : order.products;
         if (Array.isArray(products) && products.length > 0) {
-          produkList = '<ul>' + products.map(p =>
-            `<li>${p.name || p.product_id} — qty: ${p.qty || 1} — Rp ${new Intl.NumberFormat('id-ID').format(p.price || 0)}</li>`
-          ).join('') + '</ul>';
+          produkList = '<ul>' + products.map(p => {
+            const id = p.product_id ?? p.productId ?? p.id ?? '?';
+            const name = p.product_name ?? p.name ?? ('Produk #' + id);
+            return `<li>${id}(${escapeHtml(String(name))}) — qty: ${p.qty || 1} — Rp ${new Intl.NumberFormat('id-ID').format(p.price || 0)}</li>`;
+          }).join('') + '</ul>';
         } else produkList = '-';
       } catch { produkList = escapeHtml(order.products || '-'); }
 
@@ -755,7 +772,7 @@ function loadSales() {
             <td>${s.id}</td>
             <td>${escapeHtml(s.order_number || '-')}</td>
             <td>${escapeHtml(s.customer_id || '-')}</td>
-            <td>${escapeHtml(s.products || '-')}</td>
+            <td>${escapeHtml(formatProducts(s.products))}</td>
             <td>${formattedTotal}</td>
             <td><span class="status ${statusClass}">${escapeHtml(s.status)}</span></td>
             <td>${escapeHtml(s.payment_method || '-')}</td>
@@ -801,7 +818,11 @@ function loadSales() {
                     <p><strong>Catatan:</strong> ${escapeHtml(s.note || '-')}</p>
                     <hr><h4>Produk</h4>`;
         if (Array.isArray(products) && products.length) {
-          html += `<ul>` + products.map(p => `<li>${escapeHtml(p.name || p.product_id || 'Unnamed')} — qty: ${p.qty||1} — Rp ${new Intl.NumberFormat('id-ID').format(parseFloat(p.price||0))}</li>`).join('') + `</ul>`;
+          html += `<ul>` + products.map(p => {
+            const id = p.product_id ?? p.productId ?? p.id ?? '?';
+            const name = p.product_name ?? p.name ?? ('Produk #' + id);
+            return `<li>${escapeHtml(String(id))}(${escapeHtml(String(name))}) — qty: ${p.qty||1} — Rp ${new Intl.NumberFormat('id-ID').format(parseFloat(p.price||0))}</li>`;
+          }).join('') + `</ul>`;
         } else html += `<p>- Tidak ada produk tersimpan -</p>`;
         document.getElementById('saleModalBody').innerHTML = html;
         saleModal.setAttribute('data-current-id', s.id);
